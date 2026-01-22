@@ -16,6 +16,8 @@ interface DataContextType {
     clearMicrocycle: () => void;
     selectedExercise: ExerciseVariantWithFlags | null;
     setSelectedExercise: (ex: ExerciseVariantWithFlags | null) => void;
+    currentView: 'matrix' | 'builder';
+    setCurrentView: (view: 'matrix' | 'builder') => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -124,6 +126,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const clearMicrocycle = () => setMicrocycle([]);
 
 
+    const [currentView, setCurrentView] = useState<'matrix' | 'builder'>('matrix');
+
     return (
         <DataContext.Provider value={{
             exercises,
@@ -136,7 +140,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
             updateMicrocycleItem,
             clearMicrocycle,
             selectedExercise,
-            setSelectedExercise
+            setSelectedExercise,
+            currentView,
+            setCurrentView
         }}>
             {children}
         </DataContext.Provider>
