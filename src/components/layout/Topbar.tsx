@@ -1,13 +1,32 @@
-import { Search, Sun, Moon, Download, Dumbbell } from "lucide-react";
+import { Search, Sun, Moon, Download, Dumbbell, Upload } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useData } from "@/context/store";
 
 export default function Topbar() {
     const [isDark, setIsDark] = useState(false); // Mock theme state
-    const { filters, setFilters, microcycle, setCurrentView } = useData();
+    const { filters, setFilters, microcycle, setCurrentView, importExercises } = useData();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const json = JSON.parse(event.target?.result as string);
+                importExercises(json);
+                alert("Ejercicios importados correctamente.");
+            } catch (error) {
+                console.error(error);
+                alert("Error al leer el archivo JSON.");
+            }
+        };
+        reader.readAsText(file);
+    };
 
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -36,6 +55,25 @@ export default function Topbar() {
                 {/* Right Actions */}
                 <div className="ml-auto flex items-center space-x-2">
 
+                    {/* Import Action */}
+                    <input
+                        type="file"
+                        accept=".json"
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={handleFileUpload}
+                    />
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        title="Importar Ejercicios (JSON)"
+                        className="hidden md:flex gap-2"
+                    >
+                        <Upload className="h-4 w-4" />
+                        <span className="text-xs">Importar</span>
+                    </Button>
+
                     {/* Microcycle Builder Action */}
                     <Button
                         variant="outline"
@@ -44,16 +82,10 @@ export default function Topbar() {
                     >
                         <Dumbbell className="h-4 w-4" />
                         <span className="hidden sm:inline">Microciclo</span>
-                        {microcycle.length > 0 && (
-                            <Badge variant="default" className="ml-1 px-1.5 py-0 h-5 text-[10px] animate-in zoom-in">{microcycle.length}</Badge>
-                        )}
-                        {microcycle.length === 0 && (
-                            <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-[10px]">0</Badge>
-                        )}
-                    </Button>
-
-                    <Button variant="ghost" size="icon" title="Exportar Vista">
-                        <Download className="h-4 w-4" />
+                        {/* Count total exercises across all days */}
+                        <Badge variant="default" className="ml-1 px-1.5 py-0 h-5 text-[10px] animate-in zoom-in">
+                            {Object.values(microcycle.days).reduce((acc, d) => acc + d.exercises.filter(i => i.type === 'exercise').length, 0)}
+                        </Badge>
                     </Button>
 
                     <Button variant="ghost" size="icon" onClick={() => setIsDark(!isDark)}>
