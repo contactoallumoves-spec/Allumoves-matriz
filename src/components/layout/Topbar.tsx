@@ -7,7 +7,7 @@ import { useData } from "@/context/store";
 
 export default function Topbar() {
     const [isDark, setIsDark] = useState(false); // Mock theme state
-    const { filters, setFilters, microcycle } = useData();
+    const { filters, setFilters, microcycle, setCurrentView } = useData();
 
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -37,10 +37,19 @@ export default function Topbar() {
                 <div className="ml-auto flex items-center space-x-2">
 
                     {/* Microcycle Builder Action */}
-                    <Button variant="outline" className="relative gap-2 border-primary/20 text-primary hover:bg-primary/5">
+                    <Button
+                        variant="outline"
+                        className="relative gap-2 border-primary/20 text-primary hover:bg-primary/5 transition-all hover:shadow-premium-sm"
+                        onClick={() => setCurrentView('builder')}
+                    >
                         <Dumbbell className="h-4 w-4" />
                         <span className="hidden sm:inline">Microciclo</span>
-                        <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-[10px]">{microcycle.length}</Badge>
+                        {microcycle.length > 0 && (
+                            <Badge variant="default" className="ml-1 px-1.5 py-0 h-5 text-[10px] animate-in zoom-in">{microcycle.length}</Badge>
+                        )}
+                        {microcycle.length === 0 && (
+                            <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-[10px]">0</Badge>
+                        )}
                     </Button>
 
                     <Button variant="ghost" size="icon" title="Exportar Vista">
