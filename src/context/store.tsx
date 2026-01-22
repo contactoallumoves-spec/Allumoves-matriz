@@ -56,6 +56,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const [selectedExercise, setSelectedExercise] = useState<ExerciseVariantWithFlags | null>(null);
     const [currentView, setCurrentView] = useState<'matrix' | 'builder'>('matrix');
 
+    // Initial Load
+    useEffect(() => {
+        const loaded = sampleData as unknown as ExerciseVariant[];
+        setRawExercises(loaded);
+        const enriched = enrichExercises(loaded);
+        setExercises(enriched);
+    }, []);
+
     // Persistence
     useEffect(() => {
         localStorage.setItem('aum-microcycle-v2', JSON.stringify(microcycle));
