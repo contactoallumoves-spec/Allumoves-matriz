@@ -1,83 +1,93 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     /* "Cream Bone" background mostly, "Ink Blue" foreground */
-    --background: 40 40% 93%; /* #F5EFE5 converted to HSL approx */
-    --foreground: 200 63% 10%; /* #102024 */
+    --background: 40 40% 93%;
+    /* #F5EFE5 converted to HSL approx */
+    --foreground: 200 63% 10%;
+    /* #102024 */
 
     --card: 0 0% 100%;
     --card-foreground: 200 63% 10%;
- 
+
     --popover: 0 0% 100%;
     --popover-foreground: 200 63% 10%;
- 
+
     /* Ink Blue */
-    --primary: 192 38% 10%; /* #102024 */
+    --primary: 192 38% 10%;
+    /* #102024 */
     --primary-foreground: 40 40% 93%;
- 
+
     /* Sandstone (D9CBB3) -> HSL: 38 31% 78% */
     --secondary: 38 31% 78%;
     --secondary-foreground: 192 38% 10%;
- 
+
     /* Taupe Grey (8C857F) -> HSL: 30 5% 52% */
-    --muted: 30 5% 52%;
-    --muted-foreground: 0 0% 98%;
- 
+    /* Taupe Grey (8C857F) -> HSL: 30 5% 52% - Used for backgrounds */
+    --muted: 30 5% 90%;
+    /* Dark Grey for text */
+    --muted-foreground: 200 10% 40%;
+
     /* Iron Grey (363636) -> HSL: 0 0% 21% */
-    --accent: 0 0% 90%; /* Light grey for hover effects */
+    --accent: 0 0% 90%;
+    /* Light grey for hover effects */
     --accent-foreground: 192 38% 10%;
- 
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 30 5% 85%;
     --input: 30 5% 85%;
     --ring: 192 38% 10%;
- 
+
     --radius: 0.5rem;
   }
- 
+
   .dark {
     /* Ink Blue Background */
-    --background: 192 38% 10%; 
-    --foreground: 40 40% 93%; /* Cream Bone text */
- 
+    --background: 192 38% 10%;
+    --foreground: 40 40% 93%;
+    /* Cream Bone text */
+
     /* Iron Grey Cards */
-    --card: 0 0% 21%; /* #363636 */
+    --card: 0 0% 21%;
+    /* #363636 */
     --card-foreground: 40 40% 93%;
- 
+
     --popover: 0 0% 21%;
     --popover-foreground: 40 40% 93%;
- 
+
     /* Sandstone Primary in Dark Mode? Or maybe kept Cream */
-    --primary: 38 31% 65%; /* Adjusted Sandstone for better dark contrast */
+    --primary: 38 31% 65%;
+    /* Adjusted Sandstone for better dark contrast */
     --primary-foreground: 192 38% 10%;
- 
+
     --secondary: 0 0% 21%;
     --secondary-foreground: 40 40% 93%;
- 
+
     --muted: 0 0% 15%;
     --muted-foreground: 30 5% 60%;
- 
+
     --accent: 192 38% 15%;
     --accent-foreground: 40 40% 93%;
- 
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 40 40% 93%;
- 
+
     --border: 192 30% 20%;
     --input: 192 30% 20%;
     --ring: 38 31% 78%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
