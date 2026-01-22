@@ -69,8 +69,15 @@ export interface ExerciseVariantWithFlags extends ExerciseVariant {
     flags: RiskFlags;
 }
 
-export interface MicrocycleItem {
-    id: string; // Unique instance ID (to allow same exercise multiple times)
+export type MicrocycleItemType = 'exercise' | 'separator';
+
+export interface MicrocycleItemBase {
+    id: string;
+    type: MicrocycleItemType;
+}
+
+export interface MicrocycleExercise extends MicrocycleItemBase {
+    type: 'exercise';
     exerciseId: string;
     variant: ExerciseVariantWithFlags;
     sets: number;
@@ -78,6 +85,13 @@ export interface MicrocycleItem {
     rir: string; // "2"
     notes: string;
 }
+
+export interface MicrocycleSeparator extends MicrocycleItemBase {
+    type: 'separator';
+    title: string;
+}
+
+export type MicrocycleItem = MicrocycleExercise | MicrocycleSeparator;
 
 export interface MicrocycleDay {
     id: string; // "day-1"
