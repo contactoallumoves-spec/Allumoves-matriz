@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+
   // Determines base path from github repository name for GH Pages or defaults to /
   // Accessing process.env.GITHUB_REPOSITORY directly if available, else root
   const repoName = process.env.GITHUB_REPOSITORY ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/` : '/';
@@ -19,12 +20,6 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
-    }
-  };
-});
-build: {
-  outDir: 'dist',
-    assetsDir: 'assets',
     }
   };
 });
