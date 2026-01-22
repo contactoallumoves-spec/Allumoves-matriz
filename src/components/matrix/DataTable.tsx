@@ -67,12 +67,35 @@ export function DataTable<TData, TValue>({
                     Mostrando {table.getRowModel().rows.length} ejercicios
                 </div>
 
-                {/* Column Toggle (Simplified) - ideally we add DropdownMenu later, for now just a placeholder or simple div if I don't implement the dropdown component */}
-                {/* For proper "Column Picker" I really should implement DropdownMenu. Let's assume I will add it or just put a placeholder button for now. */}
-                <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-                    <SlidersHorizontal className="mr-2 h-4 w-4" />
-                    Columnas
-                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
+                            <SlidersHorizontal className="mr-2 h-4 w-4" />
+                            Columnas
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        {table
+                            .getAllColumns()
+                            .filter(
+                                (column) => column.getCanHide()
+                            )
+                            .map((column) => {
+                                return (
+                                    <DropdownMenuCheckboxItem
+                                        key={column.id}
+                                        className="capitalize"
+                                        checked={column.getIsVisible()}
+                                        onCheckedChange={(value) =>
+                                            column.toggleVisibility(!!value)
+                                        }
+                                    >
+                                        {column.id}
+                                    </DropdownMenuCheckboxItem>
+                                )
+                            })}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             <div className="rounded-md border bg-card shadow-sm overflow-hidden">
@@ -137,6 +160,9 @@ export function DataTable<TData, TValue>({
                 >
                     Anterior
                 </Button>
+                <div className="flex-1 text-center text-sm text-muted-foreground">
+                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+                </div>
                 <Button
                     variant="outline"
                     size="sm"
