@@ -61,6 +61,45 @@ export function DataProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('aum-microcycle-v2', JSON.stringify(microcycle));
     }, [microcycle]);
 
+    // Filtering Logic
+    // We use Fuse.js for fuzzy search on the "search" filter
+    // And standard filter for others
+    const filteredExercises = React.useMemo(() => {
+        let result = exercises;
+
+        // 1. Specific Filters
+        if (filters.arquetipo !== 'all') {
+            result = result.filter(ex =>
+                ex.arquetipos.some(a => a.toLowerCase() === filters.arquetipo)
+            );
+        }
+
+        if (filters.target !== 'all') {
+            result = result.filter(ex =>
+                ex.targetPrimarios.some(t => t.toLowerCase() === filters.target)
+            );
+        }
+
+        if (filters.onlyVbt) {
+            result = result.filter(ex => ex.vbtReady);
+        }
+
+        if (filters.lowRisk) {
+            result = result.filter(ex => ex.amenazaPotencial === 'Bajo');
+        }
+
+        // 2. Fuzzy Search
+        if (filters.search) {
+            const fuse = new Fuse(result, {
+                keys: ['nombreTecnico', 'arquetipos', 'targetPrimarios', 'limitingFactor'],
+                threshold: 0.3,
+            });
+            result = fuse.search(filters.search).map(r => r.item);
+        }
+
+        return result;
+    }, [exercises, filters]);
+
     // Actions
     const addToMicrocycle = (exercise: ExerciseVariantWithFlags) => {
         // Add to currently selected day
