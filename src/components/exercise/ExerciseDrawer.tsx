@@ -10,7 +10,10 @@ import { useData } from "@/context/store";
 
 export function ExerciseDrawer({ exercise }: { exercise: ExerciseVariantWithFlags }) {
     const { addToMicrocycle, microcycle } = useData();
-    const isInCart = microcycle.some(i => i.exerciseId === exercise.id);
+    // Check if exercise is in ANY of the days
+    const isInCart = Object.values(microcycle.days).some(day =>
+        day.exercises.some(i => i.exerciseId === exercise.id)
+    );
 
     return (
         <div className="flex flex-col h-full gap-6">
