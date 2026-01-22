@@ -547,7 +547,7 @@
         "nombreTecnico": "Barbell Hip Thrust",
         "arquetipos": [
             "Hinge"
-        ], // Or Bridge, but Hinge usually covers it
+        ],
         "setupTime": "Alto",
         "roi": "Alto",
         "equipamiento": "Banco + Barra",
@@ -567,7 +567,7 @@
         "natera": "No aplica",
         "jordan": "No aplica",
         "naturaleza": "Grind",
-        "vbtReady": false, // Hard to measure bar speed accurately sometimes
+        "vbtReady": false,
         "dynamoTests": false,
         "camaraApp": true,
         "faseRehab": 3,
