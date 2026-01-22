@@ -5,11 +5,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, FileDown, Plus, X, GripVertical, GripHorizontal } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Trash2, FileDown, Plus, X, GripVertical, GripHorizontal, BarChart2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MicrocycleExercise, MicrocycleSeparator } from "@/types";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SummaryDashboard } from "@/components/builder/SummaryDashboard";
+
+// Helper for card colors
+const getCardColor = (ex: MicrocycleExercise) => {
+    // Priority based on Nature or Archetype
+    if (ex.variant.naturaleza === 'Ballistic' || ex.variant.naturaleza === 'Semi-ballistic') {
+        return "border-l-orange-500 bg-orange-50/30";
+    }
+    if (ex.variant.arquetipos.some(a => a.includes("Core") || a.includes("Anti"))) {
+        return "border-l-emerald-500 bg-emerald-50/30";
+    }
+    if (ex.variant.faseRehab && ex.variant.faseRehab < 3) {
+        return "border-l-cyan-500 bg-cyan-50/30";
+    }
+    // Default Strength
+    return "border-l-primary/40 bg-card";
+};
 
 export default function BuilderPage() {
     const {
@@ -51,10 +69,6 @@ export default function BuilderPage() {
         const itemId = e.dataTransfer.getData("text/plain");
 
         if (draggedItemId && sourceDayId) {
-            // If dropping on a container without index, append to end
-            // If targetIndex is provided, use it.
-            // Note: If dropping on the same list, we need to adjust index logic?
-            // The MoveItem logic in store handles splicing correctly.
             moveItem(itemId, sourceDayId, targetDayId, targetIndex);
         }
 
@@ -82,16 +96,23 @@ export default function BuilderPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" className="gap-2">
+                                <BarChart2 className="h-4 w-4" /> Resumen
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="bottom" className="h-[500px] overflow-y-auto">
+                            <SummaryDashboard microcycle={microcycle} />
+                        </SheetContent>
+                    </Sheet>
+
                     <Button variant="outline" onClick={() => setCurrentView('matrix')}>
                         <Plus className="mr-2 h-4 w-4" />
-                        Añadir Ejercicios
+                        Añadir
                     </Button>
                     <Button variant="ghost" size="sm" onClick={clearMicrocycle} className="text-destructive hover:font-bold">
                         Limpiar
-                    </Button>
-                    <Button onClick={handleExport}>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Exportar JSON
                     </Button>
                 </div>
             </div>
@@ -112,13 +133,9 @@ export default function BuilderPage() {
                                     className="w-[340px] flex flex-col bg-muted/30 rounded-xl border h-full max-h-full"
                                     onDragOver={(e) => {
                                         e.preventDefault();
-                                        // Drop at the end if hovering over container
                                         setDragOverInfo({ dayId, index: day.exercises.length });
                                     }}
                                     onDrop={(e) => {
-                                        // Ensure we catch drops on the container itself
-                                        // Specifically if not handled by children (event bubbling)
-                                        // But simpler to handle via a dedicated drop zone at bottom or ref check
                                         if (e.target === e.currentTarget) {
                                             handleDrop(e, dayId, day.exercises.length);
                                         }
@@ -155,7 +172,7 @@ export default function BuilderPage() {
                                                         draggable
                                                         onDragStart={(e) => handleDragStart(e, item.id, dayId)}
                                                         onDragOver={(e) => {
-                                                            e.stopPropagation(); // Prevent container getting it
+                                                            e.stopPropagation();
                                                             handleDragOver(e, dayId, index);
                                                         }}
                                                         onDrop={(e) => {
@@ -163,7 +180,6 @@ export default function BuilderPage() {
                                                             handleDrop(e, dayId, index);
                                                         }}
                                                     >
-                                                        {/* Drop Indicator */}
                                                         {isOver && <div className="h-1 w-full bg-primary mb-2 rounded-full animate-pulse transition-all" />}
 
                                                         {item.type === 'separator' ? (
@@ -186,7 +202,8 @@ export default function BuilderPage() {
                                                             </div>
                                                         ) : (
                                                             <Card className={cn(
-                                                                "group relative overflow-hidden border-l-4 border-l-primary/40 hover:shadow-md transition-all cursor-grab active:cursor-grabbing",
+                                                                "group relative overflow-hidden border-l-4 hover:shadow-md transition-all cursor-grab active:cursor-grabbing",
+                                                                getCardColor(item as MicrocycleExercise),
                                                                 isDragging && "opacity-40 border-dashed border-2"
                                                             )}>
                                                                 <div className="absolute top-1 right-1 flex opacity-0 group-hover:opacity-100 bg-background/80 rounded transition-opacity z-20">
@@ -196,16 +213,13 @@ export default function BuilderPage() {
                                                                     </Button>
                                                                 </div>
 
-                                                                <CardContent className="p-3 space-y-2 pointer-events-none"> {/* Disable pointer events on content to facilitate drag on whole card */}
-                                                                    {/* Hack: Re-enable pointer events for inputs */}
+                                                                <CardContent className="p-3 space-y-2 pointer-events-none">
                                                                     <div className="pointer-events-auto">
-                                                                        {/* Header */}
                                                                         <div className="mb-2">
                                                                             <div className="text-xs text-muted-foreground/70 mb-0.5">{(item as MicrocycleExercise).variant.arquetipos[0]}</div>
                                                                             <div className="font-bold text-sm leading-tight">{(item as MicrocycleExercise).variant.nombreTecnico}</div>
                                                                         </div>
 
-                                                                        {/* Inputs */}
                                                                         <div className="grid grid-cols-3 gap-1">
                                                                             <div className="bg-muted/30 rounded p-1 text-center">
                                                                                 <label className="block text-[8px] uppercase text-muted-foreground font-bold">Sets</label>
@@ -233,7 +247,6 @@ export default function BuilderPage() {
                                                                             </div>
                                                                         </div>
 
-                                                                        {/* Notes */}
                                                                         <Input
                                                                             className="h-6 text-[10px] px-1 bg-transparent border-t-0 border-x-0 border-b border-dashed rounded-none focus-visible:ring-0 mt-2"
                                                                             placeholder="Notas..."
@@ -241,7 +254,6 @@ export default function BuilderPage() {
                                                                             onChange={(e) => updateMicrocycleItem(item.id, dayId, { notes: e.target.value })}
                                                                         />
 
-                                                                        {/* Tags */}
                                                                         <div className="flex flex-wrap gap-1 mt-1">
                                                                             {(item as MicrocycleExercise).variant.targetPrimarios.slice(0, 2).map(t => (
                                                                                 <span key={t} className="text-[9px] bg-primary/5 text-primary px-1 rounded">{t}</span>
@@ -257,7 +269,6 @@ export default function BuilderPage() {
                                                     </div>
                                                 );
                                             })}
-                                            {/* Empty Zone for dropping at the end */}
                                             <div
                                                 className="h-20 w-full flex items-center justify-center border-2 border-dashed border-transparent hover:border-muted rounded-lg transition-colors"
                                                 onDragOver={(e) => {
@@ -278,7 +289,6 @@ export default function BuilderPage() {
                         })}
                     </AnimatePresence>
 
-                    {/* Add Day Column */}
                     <div className="w-[100px] shrink-0 pt-10">
                         <Button variant="outline" className="h-full max-h-[200px] w-full flex flex-col gap-2 border-dashed" onClick={addDay}>
                             <Plus className="h-6 w-6" />
