@@ -70,12 +70,25 @@ export interface ExerciseVariantWithFlags extends ExerciseVariant {
 }
 
 export interface MicrocycleItem {
+    id: string; // Unique instance ID (to allow same exercise multiple times)
     exerciseId: string;
     variant: ExerciseVariantWithFlags;
     sets: number;
     reps: string; // "8-12" or "ISO 10s"
     rir: string; // "2"
     notes: string;
+}
+
+export interface MicrocycleDay {
+    id: string; // "day-1"
+    label: string; // "Día 1"
+    exercises: MicrocycleItem[];
+}
+
+export interface Microcycle {
+    name: string;
+    days: { [key: string]: MicrocycleDay }; // keyed by id
+    dayOrder: string[]; // ["day-1", "day-2"]
 }
 
 export interface FilterState {
