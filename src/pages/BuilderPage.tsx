@@ -77,7 +77,7 @@ export default function BuilderPage() {
         setDragOverInfo(null);
     };
 
-    const handleExport = () => {
+    const handleExportJSON = () => {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(microcycle, null, 2));
         const anchor = document.createElement('a');
         anchor.href = dataStr;
@@ -85,10 +85,46 @@ export default function BuilderPage() {
         anchor.click();
     };
 
+    const handleExportCSV = () => {
+        // Build CSV content
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Dia,Ejercicio,Sets,Reps,RIR,Notas,Targets\n";
+
+        microcycle.dayOrder.forEach(dayId => {
+            const day = microcycle.days[dayId];
+            day.exercises.forEach(item => {
+                if (item.type === 'exercise') {
+                    const row = [
+                        day.label,
+                        `"${item.variant.nombreTecnico}"`,
+                        item.sets,
+                        `"${item.reps}"`,
+                        item.rir,
+                        `"${item.notes}"`,
+                        `"${item.variant.targetPrimarios.join(', ')}"`
+                    ].join(",");
+                    csvContent += row + "\n";
+                }
+            });
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const anchor = document.createElement("a");
+        anchor.setAttribute("href", encodedUri);
+        anchor.setAttribute("download", microcycle.name + ".csv");
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
     return (
-        <div className="space-y-4 animate-in fade-in duration-500 h-full flex flex-col">
+        <div className="space-y-4 animate-in fade-in duration-500 h-full flex flex-col print:h-auto print:overflow-visible">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 shrink-0 bg-background z-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 shrink-0 bg-background z-10 print:hidden">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-primary">Microciclo</h1>
                     <p className="text-muted-foreground flex items-center gap-2 text-sm">
@@ -114,12 +150,30 @@ export default function BuilderPage() {
                     <Button variant="ghost" size="sm" onClick={clearMicrocycle} className="text-destructive hover:font-bold">
                         Limpiar
                     </Button>
+
+                    <div className="flex items-center border-l pl-2 gap-1">
+                        <Button variant="ghost" size="icon" onClick={handleExportCSV} title="Exportar CSV">
+                            <FileDown className="h-4 w-4 text-green-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={handleExportJSON} title="Exportar JSON">
+                            <FileDown className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={handlePrint} title="Imprimir PDF">
+                            <FileDown className="h-4 w-4 text-blue-600" />
+                        </Button>
+                    </div>
                 </div>
             </div>
 
+            {/* Print Header */}
+            <div className="hidden print:block pb-4 mb-4 border-b">
+                <h1 className="text-2xl font-bold">{microcycle.name}</h1>
+                <p className="text-sm text-gray-500">Generado con All U Moves Matrix</p>
+            </div>
+
             {/* Board Area */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden">
-                <div className="flex h-full gap-4 pb-4 min-w-max px-2">
+            <div className="flex-1 overflow-x-auto overflow-y-hidden print:overflow-visible print:h-auto">
+                <div className="flex h-full gap-4 pb-4 min-w-max px-2 print:flex-wrap print:gap-8 print:block">
                     {/* Render Columns for each Day */}
                     <AnimatePresence>
                         {microcycle.dayOrder.map((dayId, dayIndex) => {
@@ -130,24 +184,27 @@ export default function BuilderPage() {
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
-                                    className="w-[340px] flex flex-col bg-muted/30 rounded-xl border h-full max-h-full"
+                                    className="w-[340px] flex flex-col bg-muted/30 rounded-xl border h-full max-h-full print:w-full print:border-none print:shadow-none print:mb-8 print:break-inside-avoid"
                                     onDragOver={(e) => {
                                         e.preventDefault();
                                         setDragOverInfo({ dayId, index: day.exercises.length });
                                     }}
                                     onDrop={(e) => {
+                                        // Ensure we catch drops on the container itself
+                                        // Specifically if not handled by children (event bubbling)
+                                        // But simpler to handle via a dedicated drop zone at bottom or ref check
                                         if (e.target === e.currentTarget) {
                                             handleDrop(e, dayId, day.exercises.length);
                                         }
                                     }}
                                 >
                                     {/* Column Header */}
-                                    <div className="p-3 border-b flex items-center justify-between bg-background/50 rounded-t-xl sticky top-0 backdrop-blur-sm z-10">
+                                    <div className="p-3 border-b flex items-center justify-between bg-background/50 rounded-t-xl sticky top-0 backdrop-blur-sm z-10 print:static print:bg-transparent print:border-b-2 print:border-black">
                                         <div className="font-bold text-lg flex items-center gap-2">
                                             {day.label}
-                                            <Badge variant="secondary" className="text-xs">{day.exercises.filter(e => e.type === 'exercise').length}</Badge>
+                                            <Badge variant="secondary" className="text-xs print:hidden">{day.exercises.filter(e => e.type === 'exercise').length}</Badge>
                                         </div>
-                                        <div className="flex gap-1">
+                                        <div className="flex gap-1 print:hidden">
                                             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => addSeparator(dayId)} title="Agregar Separador">
                                                 <Separator className="h-4 w-4" />
                                             </Button>
@@ -160,8 +217,8 @@ export default function BuilderPage() {
                                     </div>
 
                                     {/* Column Content (Scrollable) */}
-                                    <ScrollArea className="flex-1 p-2">
-                                        <div className="space-y-2 min-h-[100px]">
+                                    <ScrollArea className="flex-1 p-2 print:p-0 print:overflow-visible">
+                                        <div className="space-y-2 min-h-[100px] print:space-y-4">
                                             {day.exercises.map((item, index) => {
                                                 const isDragging = draggedItemId === item.id;
                                                 const isOver = dragOverInfo?.dayId === dayId && dragOverInfo?.index === index;
@@ -179,21 +236,24 @@ export default function BuilderPage() {
                                                             e.stopPropagation();
                                                             handleDrop(e, dayId, index);
                                                         }}
+                                                        className="print:break-inside-avoid"
                                                     >
-                                                        {isOver && <div className="h-1 w-full bg-primary mb-2 rounded-full animate-pulse transition-all" />}
+                                                        <div className="print:hidden">
+                                                            {isOver && <div className="h-1 w-full bg-primary mb-2 rounded-full animate-pulse transition-all" />}
+                                                        </div>
 
                                                         {item.type === 'separator' ? (
-                                                            <div className={cn("relative group py-2 flex items-center gap-2", isDragging && "opacity-50")}>
-                                                                <GripHorizontal className="h-4 w-4 text-muted-foreground/30 cursor-grab active:cursor-grabbing" />
+                                                            <div className={cn("relative group py-2 flex items-center gap-2 print:border-b print:border-gray-300 print:mb-2", isDragging && "opacity-50")}>
+                                                                <GripHorizontal className="h-4 w-4 text-muted-foreground/30 cursor-grab active:cursor-grabbing print:hidden" />
                                                                 <Input
                                                                     value={(item as MicrocycleSeparator).title}
-                                                                    className="h-7 text-xs font-bold uppercase tracking-wider bg-transparent border-none shadow-none focus-visible:ring-0 px-0"
+                                                                    className="h-7 text-xs font-bold uppercase tracking-wider bg-transparent border-none shadow-none focus-visible:ring-0 px-0 print:text-sm print:font-black"
                                                                     onChange={(e) => updateMicrocycleItem(item.id, dayId, { title: e.target.value })}
                                                                 />
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    className="h-6 w-6 opacity-0 group-hover:opacity-100 absolute right-0"
+                                                                    className="h-6 w-6 opacity-0 group-hover:opacity-100 absolute right-0 print:hidden"
                                                                     onClick={() => removeFromMicrocycle(item.id, dayId)}
                                                                 >
                                                                     <X className="h-3 w-3" />
@@ -202,45 +262,48 @@ export default function BuilderPage() {
                                                             </div>
                                                         ) : (
                                                             <Card className={cn(
-                                                                "group relative overflow-hidden border-l-4 hover:shadow-md transition-all cursor-grab active:cursor-grabbing",
+                                                                "group relative overflow-hidden border-l-4 hover:shadow-md transition-all cursor-grab active:cursor-grabbing print:shadow-none print:border print:border-gray-200 print:bg-transparent",
                                                                 getCardColor(item as MicrocycleExercise),
                                                                 isDragging && "opacity-40 border-dashed border-2"
                                                             )}>
-                                                                <div className="absolute top-1 right-1 flex opacity-0 group-hover:opacity-100 bg-background/80 rounded transition-opacity z-20">
+                                                                <div className="absolute top-1 right-1 flex opacity-0 group-hover:opacity-100 bg-background/80 rounded transition-opacity z-20 print:hidden">
                                                                     <GripVertical className="h-4 w-4 text-muted-foreground mr-1" />
                                                                     <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => removeFromMicrocycle(item.id, dayId)}>
                                                                         <Trash2 className="h-3 w-3" />
                                                                     </Button>
                                                                 </div>
 
-                                                                <CardContent className="p-3 space-y-2 pointer-events-none">
+                                                                <CardContent className="p-3 space-y-2 pointer-events-none print:p-2">
                                                                     <div className="pointer-events-auto">
                                                                         <div className="mb-2">
-                                                                            <div className="text-xs text-muted-foreground/70 mb-0.5">{(item as MicrocycleExercise).variant.arquetipos[0]}</div>
-                                                                            <div className="font-bold text-sm leading-tight">{(item as MicrocycleExercise).variant.nombreTecnico}</div>
+                                                                            <div className="text-xs text-muted-foreground/70 mb-0.5 print:text-gray-500">{(item as MicrocycleExercise).variant.arquetipos[0]}</div>
+                                                                            <div className="font-bold text-sm leading-tight print:text-base">{(item as MicrocycleExercise).variant.nombreTecnico}</div>
                                                                         </div>
 
-                                                                        <div className="grid grid-cols-3 gap-1">
-                                                                            <div className="bg-muted/30 rounded p-1 text-center">
-                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold">Sets</label>
+                                                                        <div className="grid grid-cols-3 gap-1 print:flex print:gap-4">
+                                                                            <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Sets</label>
+                                                                                <span className="hidden print:inline text-xs font-bold mr-1">Sets:</span>
                                                                                 <input
-                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none"
+                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
                                                                                     value={(item as MicrocycleExercise).sets}
                                                                                     onChange={(e) => updateMicrocycleItem(item.id, dayId, { sets: parseInt(e.target.value) || 0 })}
                                                                                 />
                                                                             </div>
-                                                                            <div className="bg-muted/30 rounded p-1 text-center">
-                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold">Reps</label>
+                                                                            <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Reps</label>
+                                                                                <span className="hidden print:inline text-xs font-bold mr-1">Reps:</span>
                                                                                 <input
-                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none"
+                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
                                                                                     value={(item as MicrocycleExercise).reps}
                                                                                     onChange={(e) => updateMicrocycleItem(item.id, dayId, { reps: e.target.value })}
                                                                                 />
                                                                             </div>
-                                                                            <div className="bg-muted/30 rounded p-1 text-center">
-                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold">RIR</label>
+                                                                            <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">RIR</label>
+                                                                                <span className="hidden print:inline text-xs font-bold mr-1">RIR:</span>
                                                                                 <input
-                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none"
+                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
                                                                                     value={(item as MicrocycleExercise).rir}
                                                                                     onChange={(e) => updateMicrocycleItem(item.id, dayId, { rir: e.target.value })}
                                                                                 />
@@ -248,13 +311,13 @@ export default function BuilderPage() {
                                                                         </div>
 
                                                                         <Input
-                                                                            className="h-6 text-[10px] px-1 bg-transparent border-t-0 border-x-0 border-b border-dashed rounded-none focus-visible:ring-0 mt-2"
+                                                                            className="h-6 text-[10px] px-1 bg-transparent border-t-0 border-x-0 border-b border-dashed rounded-none focus-visible:ring-0 mt-2 print:border-none print:px-0 print:mt-1 print:italic"
                                                                             placeholder="Notas..."
                                                                             value={(item as MicrocycleExercise).notes}
                                                                             onChange={(e) => updateMicrocycleItem(item.id, dayId, { notes: e.target.value })}
                                                                         />
 
-                                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                                        <div className="flex flex-wrap gap-1 mt-1 print:hidden">
                                                                             {(item as MicrocycleExercise).variant.targetPrimarios.slice(0, 2).map(t => (
                                                                                 <span key={t} className="text-[9px] bg-primary/5 text-primary px-1 rounded">{t}</span>
                                                                             ))}
@@ -269,8 +332,9 @@ export default function BuilderPage() {
                                                     </div>
                                                 );
                                             })}
+                                            {/* Empty Zone for dropping at the end */}
                                             <div
-                                                className="h-20 w-full flex items-center justify-center border-2 border-dashed border-transparent hover:border-muted rounded-lg transition-colors"
+                                                className="h-20 w-full flex items-center justify-center border-2 border-dashed border-transparent hover:border-muted rounded-lg transition-colors print:hidden"
                                                 onDragOver={(e) => {
                                                     e.stopPropagation();
                                                     handleDragOver(e, dayId, day.exercises.length);
@@ -289,7 +353,8 @@ export default function BuilderPage() {
                         })}
                     </AnimatePresence>
 
-                    <div className="w-[100px] shrink-0 pt-10">
+                    {/* Add Day Column */}
+                    <div className="w-[100px] shrink-0 pt-10 print:hidden">
                         <Button variant="outline" className="h-full max-h-[200px] w-full flex flex-col gap-2 border-dashed" onClick={addDay}>
                             <Plus className="h-6 w-6" />
                             <span>Añadir Día</span>
