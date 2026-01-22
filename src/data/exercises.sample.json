@@ -1,0 +1,590 @@
+[
+    {
+        "id": "sq-01",
+        "nombreTecnico": "Goblet Squat (DB)",
+        "arquetipos": [
+            "Squat"
+        ],
+        "setupTime": "Bajo",
+        "roi": "Alto",
+        "equipamiento": "Mancuerna",
+        "perfilResistencia": "Acortamiento",
+        "estabilidadExterna": 4,
+        "saturacion": "Media",
+        "loadability": "Media",
+        "limitingFactor": [
+            "Cuádriceps",
+            "Core",
+            "Upper Back"
+        ],
+        "targetPrimarios": [
+            "Cuádriceps"
+        ],
+        "targetSecundarios": [
+            "Glúteo Mayor",
+            "Aductores"
+        ],
+        "natera": "No aplica",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": false,
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 3,
+        "estadioTendon": [
+            "Patelar - Carga"
+        ],
+        "piaIdeal": "Manejable",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Bajo",
+        "cargaAxial": 1,
+        "impacto": 0,
+        "demandaTecnica": 2,
+        "fatigaLocal": 3,
+        "fatigaSistemica": 2,
+        "valsalvaProbable": false,
+        "kpiPrimario": "RPE",
+        "kpiSecundarios": [
+            "Form Failure"
+        ],
+        "observaciones": "Excelente para principiantes."
+    },
+    {
+        "id": "sq-02",
+        "nombreTecnico": "Back Squat (Barbell)",
+        "arquetipos": [
+            "Squat"
+        ],
+        "setupTime": "Alto",
+        "roi": "Alto",
+        "equipamiento": "Barra + Rack",
+        "perfilResistencia": "Estiramiento",
+        "estabilidadExterna": 3,
+        "saturacion": "Alta",
+        "loadability": "Alta",
+        "limitingFactor": [
+            "Core",
+            "Cuádriceps",
+            "Glúteo"
+        ],
+        "targetPrimarios": [
+            "Cuádriceps",
+            "Glúteo Mayor"
+        ],
+        "targetSecundarios": [
+            "Erectores",
+            "Aductores"
+        ],
+        "natera": "No aplica",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": true,
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 4,
+        "estadioTendon": [
+            "Patelar - Almacenamiento"
+        ],
+        "piaIdeal": "Hiperpresivo",
+        "piaConservador": "Hiperpresivo",
+        "amenazaPotencial": "Alto",
+        "cargaAxial": 3,
+        "impacto": 0,
+        "demandaTecnica": 5,
+        "fatigaLocal": 4,
+        "fatigaSistemica": 5,
+        "valsalvaProbable": true,
+        "kpiPrimario": "Velocidad Media",
+        "kpiSecundarios": [
+            "RPE"
+        ],
+        "observaciones": "Rey de los ejercicios de fuerza, pero alta demanda técnica."
+    },
+    {
+        "id": "dl-01",
+        "nombreTecnico": "Romanian Deadlift (Barbell)",
+        "arquetipos": [
+            "Hinge"
+        ],
+        "setupTime": "Medio",
+        "roi": "Alto",
+        "equipamiento": "Barra",
+        "perfilResistencia": "Estiramiento",
+        "estabilidadExterna": 3,
+        "saturacion": "Alta",
+        "loadability": "Alta",
+        "limitingFactor": [
+            "Isquiosurales",
+            "Agarre",
+            "Erectores"
+        ],
+        "targetPrimarios": [
+            "Isquiosurales",
+            "Glúteo Mayor"
+        ],
+        "targetSecundarios": [
+            "Erectores",
+            "Antebrazos"
+        ],
+        "natera": "No aplica",
+        "jordan": "Slow Eccentric",
+        "naturaleza": "Grind",
+        "vbtReady": true,
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 3,
+        "estadioTendon": [
+            "Isquio - Proximal"
+        ],
+        "piaIdeal": "Hiperpresivo",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Medio",
+        "cargaAxial": 2,
+        "impacto": 0,
+        "demandaTecnica": 4,
+        "fatigaLocal": 5,
+        "fatigaSistemica": 4,
+        "valsalvaProbable": true,
+        "kpiPrimario": "ROM",
+        "kpiSecundarios": [
+            "Carga cruda"
+        ],
+        "observaciones": "Controlar la lordosis lumbar."
+    },
+    {
+        "id": "ps-01",
+        "nombreTecnico": "Bench Press (Barbell)",
+        "arquetipos": [
+            "Push"
+        ],
+        "setupTime": "Medio",
+        "roi": "Alto",
+        "equipamiento": "Banco Plano + Barra",
+        "perfilResistencia": "Estiramiento",
+        "estabilidadExterna": 5,
+        "saturacion": "Alta",
+        "loadability": "Alta",
+        "limitingFactor": [
+            "Pectoral",
+            "Tríceps",
+            "Deltoides Anterior"
+        ],
+        "targetPrimarios": [
+            "Pectoral Mayor"
+        ],
+        "targetSecundarios": [
+            "Tríceps",
+            "Deltoides Anterior"
+        ],
+        "natera": "No aplica",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": true,
+        "dynamoTests": true,
+        "camaraApp": true,
+        "faseRehab": 3,
+        "estadioTendon": [
+            "Pectoral"
+        ],
+        "piaIdeal": "Manejable",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Medio",
+        "cargaAxial": 0,
+        "impacto": 0,
+        "demandaTecnica": 3,
+        "fatigaLocal": 4,
+        "fatigaSistemica": 3,
+        "valsalvaProbable": true,
+        "kpiPrimario": "1RM Estimado",
+        "kpiSecundarios": [
+            "RPE"
+        ],
+        "observaciones": "Cuidado con hombros inestables."
+    },
+    {
+        "id": "pl-01",
+        "nombreTecnico": "Pull Up (Strict)",
+        "arquetipos": [
+            "Pull"
+        ],
+        "setupTime": "Bajo",
+        "roi": "Alto",
+        "equipamiento": "Barra Dominadas",
+        "perfilResistencia": "Acortamiento",
+        "estabilidadExterna": 2,
+        "saturacion": "Media",
+        "loadability": "Media",
+        "limitingFactor": [
+            "Dorsal Ancho",
+            "Agarre",
+            "Bíceps"
+        ],
+        "targetPrimarios": [
+            "Dorsal Ancho"
+        ],
+        "targetSecundarios": [
+            "Bíceps",
+            "Trapecio Inferior"
+        ],
+        "natera": "No aplica",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": false,
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 3,
+        "estadioTendon": [
+            "Supraespinoso"
+        ],
+        "piaIdeal": "Decompresivo",
+        "piaConservador": "Decompresivo",
+        "amenazaPotencial": "Bajo",
+        "cargaAxial": 0,
+        "impacto": 0,
+        "demandaTecnica": 3,
+        "fatigaLocal": 4,
+        "fatigaSistemica": 3,
+        "valsalvaProbable": false,
+        "kpiPrimario": "Repeticiones",
+        "kpiSecundarios": [
+            "RPE"
+        ],
+        "observaciones": "Gran ejercicio de tracción vertical."
+    },
+    {
+        "id": "ln-01",
+        "nombreTecnico": "Rear Foot Elevated Split Squat",
+        "arquetipos": [
+            "Lunge"
+        ],
+        "setupTime": "Medio",
+        "roi": "Alto",
+        "equipamiento": "Banco/Rodillo + DBs",
+        "perfilResistencia": "Estiramiento",
+        "estabilidadExterna": 2,
+        "saturacion": "Alta",
+        "loadability": "Media",
+        "limitingFactor": [
+            "Cuádriceps",
+            "Glúteo",
+            "Equilibrio"
+        ],
+        "targetPrimarios": [
+            "Cuádriceps",
+            "Glúteo Mayor"
+        ],
+        "targetSecundarios": [
+            "Aductores"
+        ],
+        "natera": "ISO-Hold",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": false,
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 3,
+        "estadioTendon": [
+            "Patelar",
+            "Glúteo"
+        ],
+        "piaIdeal": "Manejable",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Medio",
+        "cargaAxial": 1,
+        "impacto": 0,
+        "demandaTecnica": 4,
+        "fatigaLocal": 5,
+        "fatigaSistemica": 3,
+        "valsalvaProbable": false,
+        "kpiPrimario": "Carga",
+        "kpiSecundarios": [
+            "Estabilidad percibida"
+        ],
+        "observaciones": "El 'Bulgarian'. Odiado pero efectivo."
+    },
+    {
+        "id": "ply-01",
+        "nombreTecnico": "Depth Jump",
+        "arquetipos": [
+            "Squat"
+        ],
+        "setupTime": "Bajo",
+        "roi": "Alto",
+        "equipamiento": "Cajón",
+        "perfilResistencia": "Variable",
+        "estabilidadExterna": 2,
+        "saturacion": "Baja",
+        "loadability": "Baja",
+        "limitingFactor": [
+            "Coordinación",
+            "Tobillo",
+            "SNC"
+        ],
+        "targetPrimarios": [
+            "SNC"
+        ],
+        "targetSecundarios": [
+            "Cuádriceps",
+            "Gemelos"
+        ],
+        "natera": "No aplica",
+        "jordan": "Overspeed",
+        "naturaleza": "Ballistic",
+        "vbtReady": true,
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 4,
+        "estadioTendon": [
+            "Aquiles - Energy Storage"
+        ],
+        "piaIdeal": "Hiperpresivo",
+        "piaConservador": "Hiperpresivo",
+        "amenazaPotencial": "Alto",
+        "cargaAxial": 3,
+        "impacto": 3,
+        "demandaTecnica": 5,
+        "fatigaLocal": 2,
+        "fatigaSistemica": 4,
+        "valsalvaProbable": false,
+        "kpiPrimario": "RSI (Reactive Strength Index)",
+        "kpiSecundarios": [
+            "Altura Vuelo"
+        ],
+        "observaciones": "Solo para avanzados con buena base de fuerza."
+    },
+    {
+        "id": "cr-01",
+        "nombreTecnico": "Farmers Carry",
+        "arquetipos": [
+            "Carry"
+        ],
+        "setupTime": "Bajo",
+        "roi": "Medio",
+        "equipamiento": "Kettlebells / Trap Bar",
+        "perfilResistencia": "Constante",
+        "estabilidadExterna": 3,
+        "saturacion": "Baja",
+        "loadability": "Alta",
+        "limitingFactor": [
+            "Agarre",
+            "Core",
+            "Trapecio"
+        ],
+        "targetPrimarios": [
+            "Core",
+            "Antebrazos"
+        ],
+        "targetSecundarios": [
+            "Trapecio",
+            "Caderas"
+        ],
+        "natera": "No aplica",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": false,
+        "dynamoTests": false,
+        "camaraApp": false,
+        "faseRehab": 3,
+        "estadioTendon": [],
+        "piaIdeal": "Hiperpresivo",
+        "piaConservador": "Hiperpresivo",
+        "amenazaPotencial": "Bajo",
+        "cargaAxial": 2,
+        "impacto": 1,
+        "demandaTecnica": 2,
+        "fatigaLocal": 3,
+        "fatigaSistemica": 4,
+        "valsalvaProbable": true,
+        "kpiPrimario": "Distancia",
+        "kpiSecundarios": [
+            "Tiempo"
+        ],
+        "observaciones": "Excelente antigravitacional para columna."
+    },
+    {
+        "id": "iso-01",
+        "nombreTecnico": "Spanish Squat (ISO)",
+        "arquetipos": [
+            "Squat"
+        ],
+        "setupTime": "Medio",
+        "roi": "Alto",
+        "equipamiento": "Cinturón Ruso / Banda",
+        "perfilResistencia": "Constante",
+        "estabilidadExterna": 5,
+        "saturacion": "Alta",
+        "loadability": "Baja",
+        "limitingFactor": [
+            "Cuádriceps"
+        ],
+        "targetPrimarios": [
+            "Cuádriceps"
+        ],
+        "targetSecundarios": [],
+        "natera": "ISO-Hold",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": false,
+        "dynamoTests": false,
+        "camaraApp": false,
+        "faseRehab": 2,
+        "estadioTendon": [
+            "Patelar - Analgesia"
+        ],
+        "piaIdeal": "Manejable",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Bajo",
+        "cargaAxial": 0,
+        "impacto": 0,
+        "demandaTecnica": 1,
+        "fatigaLocal": 5,
+        "fatigaSistemica": 1,
+        "valsalvaProbable": false,
+        "kpiPrimario": "Tiempo bajo tensión",
+        "kpiSecundarios": [
+            "Dolor (VAS)"
+        ],
+        "observaciones": "Analgesia tendón rotuliano."
+    },
+    {
+        "id": "kb-swing",
+        "nombreTecnico": "Kettlebell Swing",
+        "arquetipos": [
+            "Hinge"
+        ],
+        "setupTime": "Bajo",
+        "roi": "Alto",
+        "equipamiento": "Kettlebell",
+        "perfilResistencia": "Variable",
+        "estabilidadExterna": 3,
+        "saturacion": "Baja",
+        "loadability": "Media",
+        "limitingFactor": [
+            "Glúteo",
+            "Antebrazos",
+            "Cardio"
+        ],
+        "targetPrimarios": [
+            "Glúteo Mayor",
+            "Isquiosurales"
+        ],
+        "targetSecundarios": [
+            "Erectores",
+            "Hombros"
+        ],
+        "natera": "No aplica",
+        "jordan": "Overspeed",
+        "naturaleza": "Semi-ballistic",
+        "vbtReady": false,
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 4,
+        "estadioTendon": [
+            "Isquio - Proximal"
+        ],
+        "piaIdeal": "Hiperpresivo",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Medio",
+        "cargaAxial": 2,
+        "impacto": 1,
+        "demandaTecnica": 4,
+        "fatigaLocal": 3,
+        "fatigaSistemica": 4,
+        "valsalvaProbable": true,
+        "kpiPrimario": "Potencia",
+        "kpiSecundarios": [
+            "RPE"
+        ],
+        "observaciones": "Bisagra de cadera explosiva."
+    },
+    {
+        "id": "pushup-01",
+        "nombreTecnico": "Push Up (Deficit)",
+        "arquetipos": [
+            "Push"
+        ],
+        "setupTime": "Bajo",
+        "roi": "Medio",
+        "equipamiento": "Discos/Paralletas",
+        "perfilResistencia": "Constante",
+        "estabilidadExterna": 4,
+        "saturacion": "Media",
+        "loadability": "Baja",
+        "limitingFactor": [
+            "Pectoral",
+            "Core"
+        ],
+        "targetPrimarios": [
+            "Pectoral Mayor"
+        ],
+        "targetSecundarios": [
+            "Tríceps",
+            "Serrato Anterior"
+        ],
+        "natera": "No aplica",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": false,
+        "dynamoTests": false,
+        "camaraApp": false,
+        "faseRehab": 2,
+        "estadioTendon": [],
+        "piaIdeal": "Manejable",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Bajo",
+        "cargaAxial": 0,
+        "impacto": 0,
+        "demandaTecnica": 2,
+        "fatigaLocal": 4,
+        "fatigaSistemica": 2,
+        "valsalvaProbable": false,
+        "kpiPrimario": "Repeticiones",
+        "kpiSecundarios": [],
+        "observaciones": "Gran activación de serrato si se hace con plus."
+    },
+    {
+        "id": "hip-thrust",
+        "nombreTecnico": "Barbell Hip Thrust",
+        "arquetipos": [
+            "Hinge"
+        ], // Or Bridge, but Hinge usually covers it
+        "setupTime": "Alto",
+        "roi": "Alto",
+        "equipamiento": "Banco + Barra",
+        "perfilResistencia": "Acortamiento",
+        "estabilidadExterna": 5,
+        "saturacion": "Alta",
+        "loadability": "Alta",
+        "limitingFactor": [
+            "Glúteo"
+        ],
+        "targetPrimarios": [
+            "Glúteo Mayor"
+        ],
+        "targetSecundarios": [
+            "Isquiosurales"
+        ],
+        "natera": "No aplica",
+        "jordan": "No aplica",
+        "naturaleza": "Grind",
+        "vbtReady": false, // Hard to measure bar speed accurately sometimes
+        "dynamoTests": false,
+        "camaraApp": true,
+        "faseRehab": 3,
+        "estadioTendon": [],
+        "piaIdeal": "Manejable",
+        "piaConservador": "Manejable",
+        "amenazaPotencial": "Bajo",
+        "cargaAxial": 0,
+        "impacto": 0,
+        "demandaTecnica": 2,
+        "fatigaLocal": 5,
+        "fatigaSistemica": 3,
+        "valsalvaProbable": true,
+        "kpiPrimario": "Carga",
+        "kpiSecundarios": [
+            "RPE"
+        ],
+        "observaciones": "El rey del glúteo según Bret C."
+    }
+]
