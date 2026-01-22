@@ -14,6 +14,7 @@ interface DataContextType {
     setCurrentDayId: (id: string) => void;
     addDay: () => void;
     removeDay: (id: string) => void;
+    importExercises: (data: any[]) => void;
     addToMicrocycle: (exercise: ExerciseVariantWithFlags) => void;
     addSeparator: (dayId: string, title?: string) => void;
     moveItem: (itemId: string, fromDayId: string, toDayId: string, newIndex?: number) => void;
@@ -111,6 +112,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }, [exercises, filters]);
 
     // Actions
+    const importExercises = (data: any[]) => {
+        try {
+            // Basic validation
+            if (!Array.isArray(data)) throw new Error("Format invalid: Must be an array");
+
+            // Enrich and set
+            // Cast to ExerciseVariant for now, assuming structure matches enough or we rely on heuristics to fill gaps
+            const validData = data.filter(d => d.id && d.nombreTecnico);
+            setRawExercises(validData as ExerciseVariant[]);
+            const enriched = enrichExercises(validData as ExerciseVariant[]);
+            setExercises(enriched);
+
+            // Show success message (optional, handled by UI)
+            console.log("Imported", enriched.length, "exercises");
+        } catch (e) {
+            console.error("Failed to import", e);
+            throw e;
+        }
+    };
+
     const addToMicrocycle = (exercise: ExerciseVariantWithFlags) => {
         // Add to currently selected day
         const day = microcycle.days[currentDayId];
@@ -293,6 +314,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             setCurrentDayId,
             addDay,
             removeDay,
+            importExercises,
             addToMicrocycle,
             addSeparator,
             moveItem,
