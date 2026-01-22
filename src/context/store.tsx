@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ExerciseVariant, ExerciseVariantWithFlags, MicrocycleItem, FilterState } from '@/types';
+import { ExerciseVariant, ExerciseVariantWithFlags, MicrocycleItem, MicrocycleExercise, MicrocycleSeparator, Microcycle, FilterState } from '@/types';
 import sampleData from '@/data/exercises.sample.json';
 import { enrichExercises } from '@/lib/heuristics';
 import Fuse from 'fuse.js';
@@ -15,6 +15,8 @@ interface DataContextType {
     addDay: () => void;
     removeDay: (id: string) => void;
     addToMicrocycle: (exercise: ExerciseVariantWithFlags) => void;
+    addSeparator: (dayId: string, title?: string) => void;
+    moveItem: (itemId: string, fromDayId: string, toDayId: string, newIndex?: number) => void;
     removeFromMicrocycle: (itemId: string, dayId: string) => void;
     updateMicrocycleItem: (itemId: string, dayId: string, updates: Partial<MicrocycleItem>) => void;
     clearMicrocycle: () => void;
@@ -115,8 +117,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (!day) return;
 
         // Allow duplicates? Yes, but need unique ID.
-        const newItem: MicrocycleItem = {
+        const newItem: MicrocycleExercise = {
             id: crypto.randomUUID(),
+            type: 'exercise',
             exerciseId: exercise.id,
             variant: exercise,
             sets: 3,
@@ -136,6 +139,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
             }
         }));
     };
+
+    const addSeparator = (dayId: string, title: string = "Nuevo Bloque") => {
+        const day = microcycle.days[dayId];
+        if (!day) return;
+
+        const newItem: MicrocycleSeparator = {
+            id: crypto.randomUUID(),
+            type: 'separator',
+            title
+        };
+
+        setMicrocycle(prev => ({
+            ...prev,
+            days: {
+                ...prev.days,
+                [dayId]: {
+                    ...day,
+                    exercises: [...day.exercises, newItem]
+                }
+            }
+        }));
+    }
 
     const removeFromMicrocycle = (itemId: string, dayId: string) => {
         const day = microcycle.days[dayId];
@@ -163,8 +188,48 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 ...prev.days,
                 [dayId]: {
                     ...day,
-                    exercises: day.exercises.map(i => i.id === itemId ? { ...i, ...updates } : i)
+                    exercises: day.exercises.map(i => i.id === itemId ? { ...i, ...updates } as MicrocycleItem : i)
                 }
+            }
+        }));
+    };
+
+    const moveItem = (itemId: string, fromDayId: string, toDayId: string, newIndex?: number) => {
+        const fromDay = microcycle.days[fromDayId];
+        const toDay = microcycle.days[toDayId];
+        if (!fromDay || !toDay) return;
+
+        const itemToMove = fromDay.exercises.find(i => i.id === itemId);
+        if (!itemToMove) return;
+
+        // Remove from source
+        const newFromExercises = fromDay.exercises.filter(i => i.id !== itemId);
+
+        // Add to destination
+        let newToExercises = [...toDay.exercises];
+        if (fromDayId === toDayId) {
+            // Reorder within same day
+            newToExercises = newFromExercises; // Start with the filtered list
+            if (typeof newIndex === 'number') {
+                newToExercises.splice(newIndex, 0, itemToMove);
+            } else {
+                newToExercises.push(itemToMove);
+            }
+        } else {
+            // Move to different day
+            if (typeof newIndex === 'number') {
+                newToExercises.splice(newIndex, 0, itemToMove);
+            } else {
+                newToExercises.push(itemToMove);
+            }
+        }
+
+        setMicrocycle(prev => ({
+            ...prev,
+            days: {
+                ...prev.days,
+                [fromDayId]: { ...fromDay, exercises: (fromDayId === toDayId) ? newToExercises : newFromExercises },
+                [toDayId]: { ...toDay, exercises: (fromDayId === toDayId) ? newToExercises : newToExercises }
             }
         }));
     };
@@ -229,6 +294,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
             addDay,
             removeDay,
             addToMicrocycle,
+            addSeparator,
+            moveItem,
             removeFromMicrocycle,
             updateMicrocycleItem,
             clearMicrocycle,
