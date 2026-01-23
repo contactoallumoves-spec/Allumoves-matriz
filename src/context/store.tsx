@@ -299,6 +299,37 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
 
 
+    const duplicateMicrocycleItem = (itemId: string, dayId: string) => {
+        setMicrocycle(prev => {
+            const day = prev.days[dayId];
+            if (!day) return prev;
+
+            const itemIndex = day.exercises.findIndex(i => i.id === itemId);
+            if (itemIndex === -1) return prev;
+
+            const itemToClone = day.exercises[itemIndex];
+            const newItem = {
+                ...itemToClone,
+                id: crypto.randomUUID(), // New ID
+                notes: itemToClone.type === 'exercise' ? itemToClone.notes : "" // Copy notes? User might want exact copy.
+            };
+
+            const newExercises = [...day.exercises];
+            newExercises.splice(itemIndex + 1, 0, newItem); // Insert after
+
+            return {
+                ...prev,
+                days: {
+                    ...prev.days,
+                    [dayId]: {
+                        ...day,
+                        exercises: newExercises
+                    }
+                }
+            };
+        });
+    };
+
     const clearMicrocycle = () => {
         setMicrocycle({
             name: "Nuevo Microciclo",
@@ -326,6 +357,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             moveItem,
             removeFromMicrocycle,
             updateMicrocycleItem,
+            duplicateMicrocycleItem,
             clearMicrocycle,
             selectedExercise,
             setSelectedExercise,
