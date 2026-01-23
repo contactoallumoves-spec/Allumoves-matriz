@@ -65,6 +65,33 @@ export function ExerciseDrawer({ exercise }: { exercise: ExerciseVariantWithFlag
 
                     <Separator />
 
+                    {/* V3.0 PERFORMANCE PROFILE (RADAR CONCEPT) */}
+                    <div className="space-y-4">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Perfil de Rendimiento (0-10)</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                            {[
+                                { label: "Hipertrofia", val: exercise.scoreHypertrophy || 0, color: "bg-pink-500" },
+                                { label: "Fuerza Max", val: exercise.scoreMaxStrength || 0, color: "bg-orange-500" },
+                                { label: "Potencia", val: exercise.scorePower || 0, color: "bg-yellow-500" },
+                                { label: "Reactividad", val: exercise.scoreReactivity || 0, color: "bg-green-500" },
+                                { label: "Resistencia (Endurance)", val: exercise.scoreEndurance || 0, color: "bg-blue-500" },
+                                { label: "Estabilidad", val: exercise.scoreStability || 0, color: "bg-purple-500" },
+                            ].map((stat) => (
+                                <div key={stat.label} className="space-y-1">
+                                    <div className="flex justify-between text-xs">
+                                        <span className="font-medium text-muted-foreground">{stat.label}</span>
+                                        <span className="font-bold">{stat.val}/10</span>
+                                    </div>
+                                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                        <div className={`h-full ${stat.color} transition-all`} style={{ width: `${(stat.val / 10) * 100}%` }} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <Separator />
+
                     {/* DIMENSIONES TÉCNICAS */}
                     <div className="space-y-4">
                         <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Perfil Técnico</h4>
@@ -95,110 +122,144 @@ export function ExerciseDrawer({ exercise }: { exercise: ExerciseVariantWithFlag
                                 <p className="font-medium">{exercise.perfilResistencia}</p>
                             </div>
                         </div>
-                    </div>
+                        {/* V3.0 BIOMECHANICS & PHYSICS */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                ⚙️ Física & Biomecánica
+                            </h4>
 
-                    <Separator />
-
-                    {/* TARGETS */}
-                    <div className="space-y-4">
-                        <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Targets & Limitantes</h4>
-
-                        <div className="space-y-3">
-                            <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs">Target Primario</span>
-                                <div className="flex flex-wrap gap-1">
-                                    {exercise.targetPrimarios.map(t => <Badge key={t} variant="secondary">{t}</Badge>)}
+                            <div className="bg-slate-50 border rounded-lg p-3 grid grid-cols-2 gap-y-4 gap-x-2 text-xs">
+                                <div className="space-y-0.5">
+                                    <span className="text-muted-foreground font-semibold">Resistencia</span>
+                                    <Badge variant="outline" className="font-normal bg-white">{exercise.resistanceCurve || "-"}</Badge>
                                 </div>
-                            </div>
-                            <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs">Limiting Factors</span>
-                                <div className="flex flex-wrap gap-1">
-                                    {exercise.limitingFactor.map(t => <Badge key={t} variant="outline">{t}</Badge>)}
+                                <div className="space-y-0.5">
+                                    <span className="text-muted-foreground font-semibold">Peak Torque</span>
+                                    <Badge variant="outline" className="font-normal bg-white">{exercise.peakTorqueAngle || "-"}</Badge>
                                 </div>
-                            </div>
-                            <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs">Target Secundario</span>
-                                <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-                                    {exercise.targetSecundarios.length ? exercise.targetSecundarios.join(", ") : "-"}
+                                <div className="space-y-0.5">
+                                    <span className="text-muted-foreground font-semibold">ROM</span>
+                                    <Badge variant="outline" className="font-normal bg-white">{exercise.rangeOfMotion || "-"}</Badge>
+                                </div>
+                                <div className="space-y-0.5">
+                                    <span className="text-muted-foreground font-semibold">Potencial Carga</span>
+                                    <Badge variant="outline" className="font-normal bg-white">{exercise.absoluteLoadPotential || "-"}</Badge>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* CLINICAL / REHAB */}
-                    <div className="space-y-4">
-                        <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                            <ShieldAlert className="h-4 w-4" />
-                            Clínico
-                        </h4>
-                        <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
-                            <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs">Fase Rehab</span>
-                                <p className="font-medium">Fase {exercise.faseRehab}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs">Estadio Tendón</span>
-                                <p className="font-medium">{exercise.estadioTendon.join(", ") || "-"}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs">PIA (Ideal / Conserv.)</span>
-                                <p className="font-medium truncate" title={`${exercise.piaIdeal} / ${exercise.piaConservador}`}>
-                                    {exercise.piaIdeal} / {exercise.piaConservador}
-                                </p>
-                            </div>
-                            <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs">Amenaza Potencial</span>
-                                <Badge variant={exercise.amenazaPotencial === 'Bajo' ? 'success' : exercise.amenazaPotencial === 'Medio' ? 'warning' : 'destructive'} className="text-[10px]">
-                                    {exercise.amenazaPotencial}
-                                </Badge>
-                            </div>
-                        </div>
-                    </div>
+                        {/* TARGETS */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Targets & Limitantes</h4>
 
-                    <Separator />
-
-                    {/* METRICS */}
-                    <div className="bg-muted p-4 rounded-lg space-y-4">
-                        <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                            <Activity className="h-4 w-4" />
-                            KPIs & Carga
-                        </h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span className="text-xs text-muted-foreground block">Carga Axial</span>
-                                <div className="flex gap-0.5 mt-1">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div key={i} className={`h-1.5 w-4 rounded-full ${i < exercise.cargaAxial ? "bg-orange-500" : "bg-gray-300"}`} />
-                                    ))}
+                            <div className="space-y-3">
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">Target Primario</span>
+                                    <div className="flex flex-wrap gap-1">
+                                        {exercise.targetPrimarios.map(t => <Badge key={t} variant="secondary">{t}</Badge>)}
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <span className="text-xs text-muted-foreground block">Impacto</span>
-                                <div className="flex gap-0.5 mt-1">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div key={i} className={`h-1.5 w-4 rounded-full ${i < exercise.impacto ? "bg-red-500" : "bg-gray-300"}`} />
-                                    ))}
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">Limiting Factors</span>
+                                    <div className="flex flex-wrap gap-1">
+                                        {exercise.limitingFactor.map(t => <Badge key={t} variant="outline">{t}</Badge>)}
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <span className="text-xs text-muted-foreground block">Demanda Técnica</span>
-                                <span className="font-bold">{exercise.demandaTecnica}/5</span>
-                            </div>
-                            <div>
-                                <span className="text-xs text-muted-foreground block">Auditabilidad</span>
-                                <div className="flex gap-1 mt-0.5">
-                                    {exercise.vbtReady && <Badge variant="outline" className="text-[9px] px-1 h-4">VBT</Badge>}
-                                    {exercise.camaraApp && <Badge variant="outline" className="text-[9px] px-1 h-4">Cam</Badge>}
-                                    {exercise.dynamoTests && <Badge variant="outline" className="text-[9px] px-1 h-4">Dyn</Badge>}
-                                    {!exercise.vbtReady && !exercise.camaraApp && !exercise.dynamoTests && <span className="text-xs">-</span>}
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">Target Secundario</span>
+                                    <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
+                                        {exercise.targetSecundarios.length ? exercise.targetSecundarios.join(", ") : "-"}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                </div>
+                        <Separator />
+
+                        {/* CLINICAL / REHAB */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <ShieldAlert className="h-4 w-4" />
+                                Clínico
+                            </h4>
+                            <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">Fase Rehab</span>
+                                    <div className="flex gap-1 flex-wrap">
+                                        {(exercise.faseRehabList || [exercise.faseRehab]).map(f => (
+                                            <Badge key={f} variant="secondary" className="px-1.5 h-5 text-[10px]">Fase {f}</Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">Estadio Tendón</span>
+                                    <p className="font-medium">{exercise.estadioTendon.join(", ") || "-"}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">PIA (Ideal / Conserv.)</span>
+                                    <p className="font-medium truncate" title={`${exercise.piaIdeal} / ${exercise.piaConservador}`}>
+                                        {exercise.piaIdeal} / {exercise.piaConservador}
+                                    </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">Amenaza Potencial</span>
+                                    <Badge variant={exercise.amenazaPotencial === 'Bajo' ? 'success' : exercise.amenazaPotencial === 'Medio' ? 'warning' : 'destructive'} className="text-[10px]">
+                                        {exercise.amenazaPotencial}
+                                    </Badge>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-muted-foreground text-xs">Estrés Articular</span>
+                                    <p className="font-medium text-[11px] leading-tight text-destructive/80">
+                                        {exercise.jointStressProfile || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* METRICS */}
+                        <div className="bg-muted p-4 rounded-lg space-y-4">
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <Activity className="h-4 w-4" />
+                                KPIs & Carga
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span className="text-xs text-muted-foreground block">Carga Axial</span>
+                                    <div className="flex gap-0.5 mt-1">
+                                        {[...Array(3)].map((_, i) => (
+                                            <div key={i} className={`h-1.5 w-4 rounded-full ${i < exercise.cargaAxial ? "bg-orange-500" : "bg-gray-300"}`} />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-muted-foreground block">Impacto</span>
+                                    <div className="flex gap-0.5 mt-1">
+                                        {[...Array(3)].map((_, i) => (
+                                            <div key={i} className={`h-1.5 w-4 rounded-full ${i < exercise.impacto ? "bg-red-500" : "bg-gray-300"}`} />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-muted-foreground block">Demanda Técnica</span>
+                                    <span className="font-bold">{exercise.demandaTecnica}/5</span>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-muted-foreground block">Auditabilidad</span>
+                                    <div className="flex gap-1 mt-0.5">
+                                        {exercise.vbtReady && <Badge variant="outline" className="text-[9px] px-1 h-4">VBT</Badge>}
+                                        {exercise.camaraApp && <Badge variant="outline" className="text-[9px] px-1 h-4">Cam</Badge>}
+                                        {exercise.dynamoTests && <Badge variant="outline" className="text-[9px] px-1 h-4">Dyn</Badge>}
+                                        {!exercise.vbtReady && !exercise.camaraApp && !exercise.dynamoTests && <span className="text-xs">-</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
             </ScrollArea>
         </div>
     );
