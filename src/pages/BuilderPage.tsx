@@ -14,18 +14,37 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SummaryDashboard } from "@/components/builder/SummaryDashboard";
 
 // Helper for card colors
-const getCardColor = (ex: MicrocycleExercise) => {
-    // Priority based on Nature or Archetype
+const getCardColor = (ex: MicrocycleExercise, viewMode: 'default' | 'hypertrophy' | 'rehab' | 'risk') => {
+    if (viewMode === 'hypertrophy') {
+        const target = ex.variant.targetPrimarios[0]?.toLowerCase() || "";
+        if (target.includes("glúteo") || target.includes("cadera")) return "border-l-pink-500 bg-pink-50/30";
+        if (target.includes("cuádriceps") || target.includes("rodilla")) return "border-l-blue-500 bg-blue-50/30";
+        if (target.includes("isquio")) return "border-l-amber-500 bg-amber-50/30";
+        return "border-l-slate-500 bg-slate-50/30";
+    }
+
+    if (viewMode === 'rehab') {
+        const phase = ex.variant.faseRehab;
+        if (phase === 1) return "border-l-cyan-500 bg-cyan-50/30";
+        if (phase === 2) return "border-l-emerald-500 bg-emerald-50/30";
+        if (phase === 3) return "border-l-orange-500 bg-orange-50/30";
+        if (phase === 4) return "border-l-red-500 bg-red-50/30";
+        return "border-l-slate-200 bg-slate-50";
+    }
+
+    if (viewMode === 'risk') {
+        if (ex.variant.amenazaPotencial === 'Alto') return "border-l-red-600 bg-red-100/50";
+        if (ex.variant.amenazaPotencial === 'Medio') return "border-l-orange-400 bg-orange-50/30";
+        return "border-l-green-500 bg-green-50/30";
+    }
+
+    // Default
     if (ex.variant.naturaleza === 'Ballistic' || ex.variant.naturaleza === 'Semi-ballistic') {
         return "border-l-orange-500 bg-orange-50/30";
     }
     if (ex.variant.arquetipos.some(a => a.includes("Core") || a.includes("Anti"))) {
         return "border-l-emerald-500 bg-emerald-50/30";
     }
-    if (ex.variant.faseRehab && ex.variant.faseRehab < 3) {
-        return "border-l-cyan-500 bg-cyan-50/30";
-    }
-    // Default Strength
     return "border-l-primary/40 bg-card";
 };
 
@@ -39,7 +58,9 @@ export default function BuilderPage() {
         addDay,
         removeDay,
         addSeparator,
-        moveItem
+        moveItem,
+        viewMode,
+        setViewMode
     } = useData();
 
     // Drag and Drop State
@@ -97,9 +118,9 @@ export default function BuilderPage() {
                     const row = [
                         day.label,
                         `"${item.variant.nombreTecnico}"`,
-                        item.sets,
-                        `"${item.reps}"`,
-                        item.rir,
+                        item.dosage.sets,
+                        `"${item.dosage.reps || item.dosage.duration || item.dosage.contacts || '-'}"`,
+                        item.dosage.rir || item.dosage.intensity || '-',
                         `"${item.notes}"`,
                         `"${item.variant.targetPrimarios.join(', ')}"`
                     ].join(",");
@@ -132,6 +153,17 @@ export default function BuilderPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    {/* View Mode Selector */}
+                    <select
+                        className="h-9 w-[120px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer print:hidden"
+                        value={viewMode}
+                        onChange={(e) => setViewMode(e.target.value as any)}
+                    >
+                        <option value="default">Default</option>
+                        <option value="hypertrophy">Hipertrofia</option>
+                        <option value="rehab">Rehab</option>
+                        <option value="risk">Riesgo</option>
+                    </select>
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" className="gap-2">
@@ -263,7 +295,7 @@ export default function BuilderPage() {
                                                         ) : (
                                                             <Card className={cn(
                                                                 "group relative overflow-hidden border-l-4 hover:shadow-md transition-all cursor-grab active:cursor-grabbing print:shadow-none print:border print:border-gray-200 print:bg-transparent",
-                                                                getCardColor(item as MicrocycleExercise),
+                                                                getCardColor(item as MicrocycleExercise, viewMode),
                                                                 isDragging && "opacity-40 border-dashed border-2"
                                                             )}>
                                                                 <div className="absolute top-1 right-1 flex opacity-0 group-hover:opacity-100 bg-background/80 rounded transition-opacity z-20 print:hidden">
@@ -275,39 +307,106 @@ export default function BuilderPage() {
 
                                                                 <CardContent className="p-3 space-y-2 pointer-events-none print:p-2">
                                                                     <div className="pointer-events-auto">
-                                                                        <div className="mb-2">
-                                                                            <div className="text-xs text-muted-foreground/70 mb-0.5 print:text-gray-500">{(item as MicrocycleExercise).variant.arquetipos[0]}</div>
-                                                                            <div className="font-bold text-sm leading-tight print:text-base">{(item as MicrocycleExercise).variant.nombreTecnico}</div>
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <div className="w-full">
+                                                                                <div className="text-xs text-muted-foreground/70 mb-0.5 print:text-gray-500">{(item as MicrocycleExercise).variant.arquetipos[0]}</div>
+                                                                                <div className="font-bold text-sm leading-tight print:text-base mb-1">{(item as MicrocycleExercise).variant.nombreTecnico}</div>
+                                                                                {/* Dosage Type Selector */}
+                                                                                <select
+                                                                                    className="text-[10px] bg-muted/40 border-none rounded px-1 h-5 focus:ring-0 cursor-pointer print:hidden w-full"
+                                                                                    value={(item as MicrocycleExercise).dosage.type}
+                                                                                    onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, type: e.target.value as any } })}
+                                                                                >
+                                                                                    <option value="Strength">Strength</option>
+                                                                                    <option value="Plyo">Plyo</option>
+                                                                                    <option value="Isometric">Isometric</option>
+                                                                                    <option value="Rehab">Rehab</option>
+                                                                                </select>
+                                                                            </div>
                                                                         </div>
 
                                                                         <div className="grid grid-cols-3 gap-1 print:flex print:gap-4">
+                                                                            {/* Common: Sets */}
                                                                             <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
                                                                                 <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Sets</label>
                                                                                 <span className="hidden print:inline text-xs font-bold mr-1">Sets:</span>
                                                                                 <input
                                                                                     className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
-                                                                                    value={(item as MicrocycleExercise).sets}
-                                                                                    onChange={(e) => updateMicrocycleItem(item.id, dayId, { sets: parseInt(e.target.value) || 0 })}
+                                                                                    value={(item as MicrocycleExercise).dosage.sets}
+                                                                                    onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, sets: parseInt(e.target.value) || 0 } })}
                                                                                 />
                                                                             </div>
-                                                                            <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
-                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Reps</label>
-                                                                                <span className="hidden print:inline text-xs font-bold mr-1">Reps:</span>
-                                                                                <input
-                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
-                                                                                    value={(item as MicrocycleExercise).reps}
-                                                                                    onChange={(e) => updateMicrocycleItem(item.id, dayId, { reps: e.target.value })}
-                                                                                />
-                                                                            </div>
-                                                                            <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
-                                                                                <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">RIR</label>
-                                                                                <span className="hidden print:inline text-xs font-bold mr-1">RIR:</span>
-                                                                                <input
-                                                                                    className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
-                                                                                    value={(item as MicrocycleExercise).rir}
-                                                                                    onChange={(e) => updateMicrocycleItem(item.id, dayId, { rir: e.target.value })}
-                                                                                />
-                                                                            </div>
+
+                                                                            {/* Conditional Inputs based on Type */}
+                                                                            {(item as MicrocycleExercise).dosage.type === 'Strength' && (
+                                                                                <>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Reps</label>
+                                                                                        <span className="hidden print:inline text-xs font-bold mr-1">Reps:</span>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
+                                                                                            value={(item as MicrocycleExercise).dosage.reps || ""}
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, reps: e.target.value } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">RIR</label>
+                                                                                        <span className="hidden print:inline text-xs font-bold mr-1">RIR:</span>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
+                                                                                            value={(item as MicrocycleExercise).dosage.rir || ""}
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, rir: e.target.value } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
+
+                                                                            {(item as MicrocycleExercise).dosage.type === 'Plyo' && (
+                                                                                <>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Contacts</label>
+                                                                                        <span className="hidden print:inline text-xs font-bold mr-1">Contacts:</span>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
+                                                                                            value={(item as MicrocycleExercise).dosage.contacts || ""}
+                                                                                            /* @ts-ignore */
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, contacts: parseInt(e.target.value) || 0 } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Height/Dist</label>
+                                                                                        <span className="hidden print:inline text-xs font-bold mr-1">Dist:</span>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
+                                                                                            value={(item as MicrocycleExercise).dosage.distance || ""}
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, distance: e.target.value } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
+
+                                                                            {(item as MicrocycleExercise).dosage.type === 'Isometric' && (
+                                                                                <>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Duration</label>
+                                                                                        <span className="hidden print:inline text-xs font-bold mr-1">Time:</span>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
+                                                                                            value={(item as MicrocycleExercise).dosage.duration || ""}
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, duration: e.target.value } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Intensity</label>
+                                                                                        <span className="hidden print:inline text-xs font-bold mr-1">%:</span>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
+                                                                                            value={(item as MicrocycleExercise).dosage.intensity || ""}
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, intensity: e.target.value } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
                                                                         </div>
 
                                                                         <Input
