@@ -25,6 +25,8 @@ interface DataContextType {
     setSelectedExercise: (ex: ExerciseVariantWithFlags | null) => void;
     currentView: 'matrix' | 'builder';
     setCurrentView: (view: 'matrix' | 'builder') => void;
+    viewMode: 'default' | 'hypertrophy' | 'rehab' | 'risk';
+    setViewMode: (mode: 'default' | 'hypertrophy' | 'rehab' | 'risk') => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -58,6 +60,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const [currentDayId, setCurrentDayId] = useState<string>("day-1");
     const [selectedExercise, setSelectedExercise] = useState<ExerciseVariantWithFlags | null>(null);
     const [currentView, setCurrentView] = useState<'matrix' | 'builder'>('matrix');
+    const [viewMode, setViewMode] = useState<'default' | 'hypertrophy' | 'rehab' | 'risk'>('default');
 
     // Initial Load
     useEffect(() => {
@@ -143,9 +146,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
             type: 'exercise',
             exerciseId: exercise.id,
             variant: exercise,
-            sets: 3,
-            reps: "8-12",
-            rir: "2",
+            dosage: {
+                type: "Strength",
+                sets: 3,
+                reps: "8-12",
+                rir: "2"
+            },
             notes: ""
         };
 
@@ -324,7 +330,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
             selectedExercise,
             setSelectedExercise,
             currentView,
-            setCurrentView
+            setCurrentView,
+            viewMode,
+            setViewMode
         }}>
             {children}
         </DataContext.Provider>
