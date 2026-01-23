@@ -86,8 +86,9 @@ export default function BuilderPage() {
         // 1. Filter Pool
         // Normalized search
         const term = genTarget.toLowerCase();
-        const pool = Object.values(exercises || {}).flatMap(c => c).filter(e => {
-            const matchTarget = e.variant.targetPrimarios.some(t => t.toLowerCase().includes(term));
+        // exercises is already an array of ExerciseVariantWithFlags
+        const pool = (exercises || []).filter(e => {
+            const matchTarget = e.targetPrimarios?.some(t => t.toLowerCase().includes(term));
             const matchRoi = genIntensity === 'Cualquiera' ? true : e.roi === genIntensity;
             return matchTarget && matchRoi;
         });
@@ -247,7 +248,7 @@ export default function BuilderPage() {
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {Array.from(new Set(Object.values(exercises || {}).flatMap(c => c).flatMap(e => e.variant.targetPrimarios))).sort().slice(0, 20).map(t => (
+                                            {Array.from(new Set(exercises.flatMap(e => e.targetPrimarios || []))).sort().slice(0, 20).map(t => (
                                                 <SelectItem key={t} value={t}>{t}</SelectItem>
                                             ))}
                                             <SelectItem value="Cuádriceps">Cuádriceps (Quick)</SelectItem>
