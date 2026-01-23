@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Trash2, FileDown, Plus, X, GripVertical, GripHorizontal, BarChart2, Copy, Sparkles, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -74,48 +75,93 @@ export default function BuilderPage() {
     const [genCount, setGenCount] = useState(4);
     const [genIntensity, setGenIntensity] = useState("Alto");
 
-
+    // New Filters (V2.4)
+    const [genEquipment, setGenEquipment] = useState<string>("Cualquiera");
+    const [genLevel, setGenLevel] = useState<string>("Cualquiera"); // Principiante, Intermedio, Avanzado
+    const [genMaxImpact, setGenMaxImpact] = useState<string>("Cualquiera"); // Bajo, Medio, Alto
+    const [genLowRisk, setGenLowRisk] = useState<boolean>(false);
 
     // Generator Logic
     const handleAutoGenerate = () => {
         // 1. Filter Pool
         // Normalized search
         const term = genTarget.toLowerCase();
+
         // exercises is already an array of ExerciseVariantWithFlags
         const pool = (exercises || []).filter(e => {
+            // Target Filter
             const matchTarget = e.targetPrimarios?.some(t => t.toLowerCase().includes(term));
+
+            // Intensity (ROI)
             const matchRoi = genIntensity === 'Cualquiera' ? true : e.roi === genIntensity;
-            return matchTarget && matchRoi;
+
+            // Equipment Filter
+            let matchEquip = true;
+            if (genEquipment !== "Cualquiera") {
+                // Fuzzy match for equipment (e.g. "Barra" matches "Barra + Rack")
+                matchEquip = e.equipamiento?.toLowerCase().includes(genEquipment.toLowerCase()) || false;
+            }
+
+            // Level Filter (Technical Demand)
+            // 1-2: Beginner, 3-4: Intermediate, 5: Advanced
+            let matchLevel = true;
+            if (genLevel !== "Cualquiera") {
+                const demand = e.demandaTecnica || 3;
+                if (genLevel === "Principiante") matchLevel = demand <= 2;
+                if (genLevel === "Intermedio") matchLevel = demand <= 4;
+                // Avanzado includes everything (or maybe >=4? usually 'Advanced' user can do everything, so 'Any' works, 
+                // but if they want ONLY advanced stuff? standard logic is 'up to this level')
+                // Let's assume selection means "Suitable for this level"
+                if (genLevel === "Avanzado") matchLevel = true;
+
+                // Correction: If I select "Principiante", I ONLY want simple stuff.
+                // If I select "Avanzado", I probably can handle everything, but maybe I specifically want complex stuff?
+                // Let's stick to: "Max allowable difficulty" logic.
+            }
+
+            // Impact Filter
+            // 0: None, 1: Low, 2: Med, 3: High
+            let matchImpact = true;
+            if (genMaxImpact !== "Cualquiera") {
+                const impact = e.impacto || 0;
+                if (genMaxImpact === "Bajo") matchImpact = impact === 0; // Strict low/no impact
+                if (genMaxImpact === "Medio") matchImpact = impact <= 1;
+                if (genMaxImpact === "Alto") matchImpact = true;
+            }
+
+            // Risk Filter
+            let matchRisk = true;
+            if (genLowRisk) {
+                matchRisk = e.amenazaPotencial === "Bajo";
+            }
+
+            return matchTarget && matchRoi && matchEquip && matchLevel && matchImpact && matchRisk;
         });
 
         if (pool.length === 0) {
-            alert(`No encontré ejercicios de ${genTarget} con ROI ${genIntensity}. Intenta otros filtros.`);
+            alert(`No encontré ejercicios con esos criterios (Target: ${genTarget}, ROI: ${genIntensity}, Equip: ${genEquipment}, Nivel: ${genLevel}). Intenta relajar los filtros.`);
             return;
         }
 
         // 2. Select Random
         const selected = [];
-        for (let i = 0; i < genCount; i++) {
-            const random = pool[Math.floor(Math.random() * pool.length)];
-            // Avoid duplicates if possible, but allow if pool is small
-            selected.push(random);
+        // If pool is smaller than requested count, just take all of them
+        const countToSelect = Math.min(pool.length, genCount);
+
+        // clone pool to pick without replacement if possible
+        const tempPool = [...pool];
+
+        for (let i = 0; i < countToSelect; i++) {
+            const randomIndex = Math.floor(Math.random() * tempPool.length);
+            selected.push(tempPool[randomIndex]);
+            // Remove from tempPool to avoid duplicates if we have enough items
+            tempPool.splice(randomIndex, 1);
         }
 
         // 3. Add Day & Items
-        // We need to wait for the state update or use a different approach. 
-        // Since we can't await `addDay` state update in this version without major refactor,
-        // we will manually construct the day object and insert it directly via setMicrocycle if we could.
-        // BUT `addDay` returns the new ID synchronously in our store implementation!
-
         const newDayId = addDay();
 
-        // Now add items to this new Day
-        // We need to iterate and add them one by one or create a bulk add.
-        // `updateMicrocycleItem` works on existing items. `addToMicrocycle`?
-        // Let's check if we have `addToMicrocycle`. access via useData.
-
         selected.forEach(ex => {
-            // `addToMicrocycle` expects (exercise, dayId).
             addToMicrocycle(ex, newDayId);
         });
 
@@ -242,43 +288,96 @@ export default function BuilderPage() {
                                 </SheetDescription>
                             </SheetHeader>
 
-                            <div className="space-y-6 py-6">
-                                <div className="space-y-2">
-                                    <Label>Enfoque Principal (Target)</Label>
-                                    <Select value={genTarget} onValueChange={setGenTarget}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {Array.from(new Set(exercises.flatMap(e => e.targetPrimarios || []))).sort().slice(0, 20).map(t => (
-                                                <SelectItem key={t} value={t}>{t}</SelectItem>
-                                            ))}
-                                            <SelectItem value="Cuádriceps">Cuádriceps (Quick)</SelectItem>
-                                            <SelectItem value="Glúteo Mayor">Glúteo Mayor (Quick)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                            <div className="flex flex-col gap-4 py-4">
+                                {/* Row 1: Target & Count */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Enfoque</Label>
+                                        <Select value={genTarget} onValueChange={setGenTarget}>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Array.from(new Set(exercises.flatMap(e => e.targetPrimarios || []))).sort().slice(0, 20).map(t => (
+                                                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                                                ))}
+                                                <SelectItem value="Cuádriceps">Cuádriceps</SelectItem>
+                                                <SelectItem value="Glúteo Mayor">Glúteo Mayor</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Cantidad: {genCount}</Label>
+                                        <Input
+                                            type="range" min="2" max="8" step="1"
+                                            value={genCount}
+                                            onChange={(e) => setGenCount(parseInt(e.target.value))}
+                                            className="mt-2"
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label>Intensidad / ROI</Label>
-                                    <Select value={genIntensity} onValueChange={setGenIntensity}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Alto">Alto ROI Only</SelectItem>
-                                            <SelectItem value="Cualquiera">Cualquiera</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                {/* Row 2: Equipment & Level */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Material</Label>
+                                        <Select value={genEquipment} onValueChange={setGenEquipment}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Cualquiera">Cualquiera</SelectItem>
+                                                <SelectItem value="Mancuerna">Mancuernas</SelectItem>
+                                                <SelectItem value="Barra">Barra</SelectItem>
+                                                <SelectItem value="Kettlebell">Kettlebell</SelectItem>
+                                                <SelectItem value="Banco">Banco</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Nivel</Label>
+                                        <Select value={genLevel} onValueChange={setGenLevel}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Cualquiera">Cualquiera</SelectItem>
+                                                <SelectItem value="Principiante">Principiante (Téc ≤2)</SelectItem>
+                                                <SelectItem value="Intermedio">Intermedio (Téc ≤4)</SelectItem>
+                                                <SelectItem value="Avanzado">Avanzado</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label>Cantidad de Ejercicios: {genCount}</Label>
-                                    <Input
-                                        type="range" min="2" max="8" step="1"
-                                        value={genCount}
-                                        onChange={(e) => setGenCount(parseInt(e.target.value))}
-                                    />
+                                {/* Row 3: Impact & ROI */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Impacto Max</Label>
+                                        <Select value={genMaxImpact} onValueChange={setGenMaxImpact}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Cualquiera">Cualquiera</SelectItem>
+                                                <SelectItem value="Bajo">Bajo (Sin saltos)</SelectItem>
+                                                <SelectItem value="Medio">Medio</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Intensidad</Label>
+                                        <Select value={genIntensity} onValueChange={setGenIntensity}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Alto">Alto ROI Only</SelectItem>
+                                                <SelectItem value="Cualquiera">Cualquiera</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                {/* Row 4: Risk Switch */}
+                                <div className="flex items-center justify-between border rounded-lg p-3 bg-muted/20">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-sm">Modo Seguro 🛡️</Label>
+                                        <div className="text-[10px] text-muted-foreground">Evita ejercicios de "Amenaza Alta"</div>
+                                    </div>
+                                    <Switch checked={genLowRisk} onCheckedChange={setGenLowRisk} />
                                 </div>
                             </div>
 
