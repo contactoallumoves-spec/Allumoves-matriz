@@ -168,9 +168,99 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }));
     };
 
-    // ... (addSeparator logic same, skipped)
+    const addSeparator = (dayId: string, title: string = "Nuevo Bloque") => {
+        const day = microcycle.days[dayId];
+        if (!day) return;
 
-    // ...
+        const newItem: MicrocycleSeparator = {
+            id: crypto.randomUUID(),
+            type: 'separator',
+            title
+        };
+
+        setMicrocycle(prev => ({
+            ...prev,
+            days: {
+                ...prev.days,
+                [dayId]: {
+                    ...day,
+                    exercises: [...day.exercises, newItem]
+                }
+            }
+        }));
+    };
+
+    const removeFromMicrocycle = (itemId: string, dayId: string) => {
+        const day = microcycle.days[dayId];
+        if (!day) return;
+
+        setMicrocycle(prev => ({
+            ...prev,
+            days: {
+                ...prev.days,
+                [dayId]: {
+                    ...day,
+                    exercises: day.exercises.filter(i => i.id !== itemId)
+                }
+            }
+        }));
+    };
+
+    const updateMicrocycleItem = (itemId: string, dayId: string, updates: Partial<MicrocycleItem>) => {
+        const day = microcycle.days[dayId];
+        if (!day) return;
+
+        setMicrocycle(prev => ({
+            ...prev,
+            days: {
+                ...prev.days,
+                [dayId]: {
+                    ...day,
+                    exercises: day.exercises.map(i => i.id === itemId ? { ...i, ...updates } as MicrocycleItem : i)
+                }
+            }
+        }));
+    };
+
+    const moveItem = (itemId: string, fromDayId: string, toDayId: string, newIndex?: number) => {
+        const fromDay = microcycle.days[fromDayId];
+        const toDay = microcycle.days[toDayId];
+        if (!fromDay || !toDay) return;
+
+        const itemToMove = fromDay.exercises.find(i => i.id === itemId);
+        if (!itemToMove) return;
+
+        // Remove from source
+        const newFromExercises = fromDay.exercises.filter(i => i.id !== itemId);
+
+        // Add to destination
+        let newToExercises = [...toDay.exercises];
+        if (fromDayId === toDayId) {
+            // Reorder within same day
+            newToExercises = newFromExercises; // Start with the filtered list
+            if (typeof newIndex === 'number') {
+                newToExercises.splice(newIndex, 0, itemToMove);
+            } else {
+                newToExercises.push(itemToMove);
+            }
+        } else {
+            // Move to different day
+            if (typeof newIndex === 'number') {
+                newToExercises.splice(newIndex, 0, itemToMove);
+            } else {
+                newToExercises.push(itemToMove); // default append
+            }
+        }
+
+        setMicrocycle(prev => ({
+            ...prev,
+            days: {
+                ...prev.days,
+                [fromDayId]: { ...fromDay, exercises: (fromDayId === toDayId) ? newToExercises : newFromExercises },
+                [toDayId]: { ...toDay, exercises: (fromDayId === toDayId) ? newToExercises : newToExercises }
+            }
+        }));
+    };
 
     const addDay = (): string => {
         const newId = `day-${Date.now()}`; // distinct enough
