@@ -1,12 +1,20 @@
 export type Intensity = "Baja" | "Media" | "Alta";
 export type Scale1to5 = 1 | 2 | 3 | 4 | 5;
 export type Scale0to3 = 0 | 1 | 2 | 3;
+export type Score0to10 = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type RehabPhase = 1 | 2 | 3 | 4;
 
 export type NateraOption = "ISO-Push" | "ISO-Hold" | "ISO-Switch" | "No aplica";
 export type JordanOption = "Slow Eccentric" | "Braking" | "Overspeed" | "No aplica";
-export type NatureOption = "Grind" | "Semi-ballistic" | "Ballistic";
+export type NatureOption = "Grind" | "Semi-ballistic" | "Ballistic" | "Mobility";
 export type PiaType = "Decompresivo" | "Manejable" | "Hiperpresivo";
+
+// Biomechanics & Physics
+export type ResistanceCurve = "Ascending" | "Descending" | "Bell" | "Flat";
+export type PeakTorqueAngle = "Lengthened" | "Mid-Range" | "Shortened";
+export type RangeOfMotion = "Full" | "Partial-Lengthened" | "Partial-Shortened";
+export type AbsoluteLoadPotential = "Very High (>2xBW)" | "High" | "Moderate" | "Low";
+export type JointStressProfile = "Low Stress" | "High Compression" | "High Shear" | "Distraction";
 
 export interface ExerciseVariant {
     id: string; // Unique ID
@@ -15,10 +23,22 @@ export interface ExerciseVariant {
     setupTime: "Alto" | "Bajo"; // 3.a ROI is derived usually, but let's keep it simple or combined
     roi: "Alto" | "Bajo"; // 3.b
     equipamiento: string; // 4
-    perfilResistencia: string; // 5
+
+    // 5. Biomechanics & Physics (V3.0)
+    perfilResistencia: string; // Legacy field (keep for now or map to resistanceCurve)
+    resistanceCurve?: ResistanceCurve;
+    peakTorqueAngle?: PeakTorqueAngle;
+    rangeOfMotion?: RangeOfMotion;
+    momentumArm?: string; // Descriptive text
+
     estabilidadExterna: Scale1to5; // 6
     saturacion: Intensity; // 7.a
-    loadability: Intensity; // 7.b
+
+    // 7.b Load & Progression (V3.0)
+    loadability: Intensity; // Deprecated in favor of absoluteLoadPotential
+    absoluteLoadPotential?: AbsoluteLoadPotential;
+    progressionType?: "Load" | "Reps" | "Density" | "Complexity";
+
     limitingFactor: string[]; // 8 (Top 3)
 
     // 9 Enfoque Regional
@@ -34,13 +54,18 @@ export interface ExerciseVariant {
     dynamoTests: boolean;
     camaraApp: boolean;
 
-    faseRehab: RehabPhase; // 14
+    // 14 Rehab (V3.0)
+    faseRehab: RehabPhase; // Legacy (single)
+    faseRehabList?: RehabPhase[]; // New (multiple)
     estadioTendon: string[]; // 15
 
     piaIdeal: PiaType; // 16.a
     piaConservador: PiaType; // 16.b
 
-    amenazaPotencial: "Bajo" | "Medio" | "Alto"; // 17
+    // 17 Risk (V3.0)
+    amenazaPotencial: "Bajo" | "Medio" | "Alto"; // Legacy
+    jointStressProfile?: JointStressProfile;
+    isMobility?: boolean;
 
     // Extra Operational Fields
     cargaAxial: Scale0to3;
@@ -52,6 +77,14 @@ export interface ExerciseVariant {
 
     kpiPrimario: string;
     kpiSecundarios: string[];
+
+    // V3.0 Performance Scores (Radar)
+    scoreHypertrophy?: Score0to10;
+    scoreMaxStrength?: Score0to10;
+    scorePower?: Score0to10;
+    scoreReactivity?: Score0to10;
+    scoreEndurance?: Score0to10;
+    scoreStability?: Score0to10;
 
     observaciones?: string;
     supuestos?: string;
