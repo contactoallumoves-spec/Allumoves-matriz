@@ -260,6 +260,7 @@ export function ExerciseDrawer({ exercise }: { exercise: ExerciseVariantWithFlag
                         </div>
 
                     </div>
+                </div>
             </ScrollArea>
         </div>
     );
