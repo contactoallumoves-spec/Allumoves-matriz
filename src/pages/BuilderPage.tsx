@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Trash2, FileDown, Plus, X, GripVertical, GripHorizontal, BarChart2 } from "lucide-react";
+import { Trash2, FileDown, Plus, X, GripVertical, GripHorizontal, BarChart2, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MicrocycleExercise, MicrocycleSeparator } from "@/types";
 import { useState } from "react";
@@ -53,6 +53,7 @@ export default function BuilderPage() {
         microcycle,
         removeFromMicrocycle,
         updateMicrocycleItem,
+        duplicateMicrocycleItem,
         clearMicrocycle,
         setCurrentView,
         addDay,
@@ -300,6 +301,9 @@ export default function BuilderPage() {
                                                             )}>
                                                                 <div className="absolute top-1 right-1 flex opacity-0 group-hover:opacity-100 bg-background/80 rounded transition-opacity z-20 print:hidden">
                                                                     <GripVertical className="h-4 w-4 text-muted-foreground mr-1" />
+                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={() => duplicateMicrocycleItem(item.id, dayId)} title="Duplicar">
+                                                                        <Copy className="h-3 w-3" />
+                                                                    </Button>
                                                                     <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => removeFromMicrocycle(item.id, dayId)}>
                                                                         <Trash2 className="h-3 w-3" />
                                                                     </Button>
@@ -374,7 +378,7 @@ export default function BuilderPage() {
                                                                                         />
                                                                                     </div>
                                                                                     <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
-                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Height/Dist</label>
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Height</label>
                                                                                         <span className="hidden print:inline text-xs font-bold mr-1">Dist:</span>
                                                                                         <input
                                                                                             className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
@@ -388,7 +392,7 @@ export default function BuilderPage() {
                                                                             {(item as MicrocycleExercise).dosage.type === 'Isometric' && (
                                                                                 <>
                                                                                     <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
-                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Duration</label>
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Time</label>
                                                                                         <span className="hidden print:inline text-xs font-bold mr-1">Time:</span>
                                                                                         <input
                                                                                             className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
@@ -397,12 +401,35 @@ export default function BuilderPage() {
                                                                                         />
                                                                                     </div>
                                                                                     <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
-                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Intensity</label>
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Inten.</label>
                                                                                         <span className="hidden print:inline text-xs font-bold mr-1">%:</span>
                                                                                         <input
                                                                                             className="w-full bg-transparent text-center text-xs font-medium focus:outline-none print:text-left print:inline print:w-auto"
                                                                                             value={(item as MicrocycleExercise).dosage.intensity || ""}
                                                                                             onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, intensity: e.target.value } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
+
+                                                                            {(item as MicrocycleExercise).dosage.type === 'Rehab' && (
+                                                                                <>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Quality 1-10</label>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none"
+                                                                                            placeholder="10"
+                                                                                            value={(item as MicrocycleExercise).dosage.quality || ""}
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, quality: e.target.value } })}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="bg-muted/30 rounded p-1 text-center print:bg-transparent print:p-0 print:text-left print:flex-1">
+                                                                                        <label className="block text-[8px] uppercase text-muted-foreground font-bold print:hidden">Pain 0-10</label>
+                                                                                        <input
+                                                                                            className="w-full bg-transparent text-center text-xs font-medium focus:outline-none text-red-500"
+                                                                                            placeholder="0"
+                                                                                            value={(item as MicrocycleExercise).dosage.pain || ""}
+                                                                                            onChange={(e) => updateMicrocycleItem(item.id, dayId, { dosage: { ...(item as MicrocycleExercise).dosage, pain: e.target.value } })}
                                                                                         />
                                                                                     </div>
                                                                                 </>
