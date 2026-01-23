@@ -18,7 +18,7 @@ export function SummaryDashboard({ microcycle }: { microcycle: Microcycle }) {
     };
 
     allItems.forEach(item => {
-        const sets = item.sets || 0;
+        const sets = item.dosage?.sets || 0;
 
         // Target Counts
         item.variant.targetPrimarios.forEach(t => {
