@@ -80,9 +80,26 @@ export interface MicrocycleExercise extends MicrocycleItemBase {
     type: 'exercise';
     exerciseId: string;
     variant: ExerciseVariantWithFlags;
-    sets: number;
-    reps: string; // "8-12" or "ISO 10s"
-    rir: string; // "2"
+
+    // V2.1 Advanced Prescription
+    dosage: {
+        type: "Strength" | "Plyo" | "Isometric" | "Rehab" | "Cardio";
+        sets: number;
+        // Strength
+        reps?: string;
+        rir?: string;
+        weight?: string;
+        // Plyo
+        contacts?: number;
+        distance?: string;
+        height?: string;
+        // Iso
+        duration?: string;
+        intensity?: string;
+        // Rehab
+        quality?: string; // 1-10
+        pain?: string; // 0-10
+    };
     notes: string;
 }
 
