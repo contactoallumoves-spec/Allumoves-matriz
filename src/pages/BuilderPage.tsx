@@ -59,6 +59,7 @@ export default function BuilderPage() {
         clearMicrocycle,
         setCurrentView,
         addDay,
+        removeDay,
         moveItem,
         addSeparator,
         exercises,
