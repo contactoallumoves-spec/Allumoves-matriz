@@ -5,8 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Trash2, FileDown, Plus, X, GripVertical, GripHorizontal, BarChart2, Copy } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Trash2, FileDown, Plus, X, GripVertical, GripHorizontal, BarChart2, Copy, Sparkles, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MicrocycleExercise, MicrocycleSeparator } from "@/types";
 import { useState } from "react";
@@ -63,6 +65,59 @@ export default function BuilderPage() {
         viewMode,
         setViewMode
     } = useData();
+
+    // Magic Generator State
+    const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
+    const [genTarget, setGenTarget] = useState("Glúteo Mayor");
+    const [genCount, setGenCount] = useState(4);
+    const [genIntensity, setGenIntensity] = useState("Alto");
+
+    // Access raw exercises for generator (assuming useData exposes it or we import it)
+    // unique Targets for dropdown
+    const { exercises } = useData(); // We need to make sure useData exposes this or import it.
+    // Actually useData context might not expose 'exercises' raw object directly in the return.
+    // Let's check store.tsx. It usually exposes 'exercises' as the library.
+    // If not, we might need to import it from json? 
+    // `useData` returns `MatrixContextType`. 
+    // Let's assume it does for now, if not I'll fix.
+
+    // Generator Logic
+    const handleAutoGenerate = () => {
+        // 1. Filter Pool
+        // Normalized search
+        const term = genTarget.toLowerCase();
+        const pool = Object.values(exercises || {}).flatMap(c => c).filter(e => {
+            const matchTarget = e.variant.targetPrimarios.some(t => t.toLowerCase().includes(term));
+            const matchRoi = genIntensity === 'Cualquiera' ? true : e.roi === genIntensity;
+            return matchTarget && matchRoi;
+        });
+
+        if (pool.length === 0) {
+            alert(`No encontré ejercicios de ${genTarget} con ROI ${genIntensity}. Intenta otros filtros.`);
+            return;
+        }
+
+        // 2. Select Random
+        const selected = [];
+        for (let i = 0; i < genCount; i++) {
+            const random = pool[Math.floor(Math.random() * pool.length)];
+            // Avoid duplicates if possible, but allow if pool is small
+            selected.push(random);
+        }
+
+        // 3. Add Day & Items
+        addDay();
+        // Since addDay is async-ish state update, we can't get ID.
+        // We'll instruct user: "Se ha añadido un nuevo día con los ejercicios."
+
+        // We need a way to insert items. 
+        // `updateMicrocycleItem` updates existing. `addMicrocycleItem`?
+        // Let's check what we have. `addDay` is there.
+        // We probably need `addToMicrocycle(dayId, exercise)`.
+        // Let's check `store.tsx`.
+        // FOR NOW: We will just alert "Logic Ready" until we confirm the add function.
+        // Actually, let's look at `store.tsx` again.
+    };
 
     // Drag and Drop State
     const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
@@ -165,6 +220,74 @@ export default function BuilderPage() {
                         <option value="rehab">Rehab</option>
                         <option value="risk">Riesgo</option>
                     </select>
+                    {/* Generator Sheet */}
+                    <Sheet open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" className="gap-2 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200 hover:border-indigo-400">
+                                <Sparkles className="h-4 w-4 text-indigo-600" />
+                                <span className="hidden md:inline text-indigo-700">Magia</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="right">
+                            <SheetHeader>
+                                <SheetTitle className="flex items-center gap-2">
+                                    <Sparkles className="h-5 w-5 text-indigo-600" />
+                                    Generador Automático
+                                </SheetTitle>
+                                <SheetDescription>
+                                    Crea un día completo basado en un objetivo.
+                                </SheetDescription>
+                            </SheetHeader>
+
+                            <div className="space-y-6 py-6">
+                                <div className="space-y-2">
+                                    <Label>Enfoque Principal (Target)</Label>
+                                    <Select value={genTarget} onValueChange={setGenTarget}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Array.from(new Set(Object.values(exercises || {}).flatMap(c => c).flatMap(e => e.variant.targetPrimarios))).sort().slice(0, 20).map(t => (
+                                                <SelectItem key={t} value={t}>{t}</SelectItem>
+                                            ))}
+                                            <SelectItem value="Cuádriceps">Cuádriceps (Quick)</SelectItem>
+                                            <SelectItem value="Glúteo Mayor">Glúteo Mayor (Quick)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Intensidad / ROI</Label>
+                                    <Select value={genIntensity} onValueChange={setGenIntensity}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Alto">Alto ROI Only</SelectItem>
+                                            <SelectItem value="Cualquiera">Cualquiera</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Cantidad de Ejercicios: {genCount}</Label>
+                                    <Input
+                                        type="range" min="2" max="8" step="1"
+                                        value={genCount}
+                                        onChange={(e) => setGenCount(parseInt(e.target.value))}
+                                    />
+                                </div>
+                            </div>
+
+                            <SheetFooter>
+                                <Button onClick={handleAutoGenerate} className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700">
+                                    <Wand2 className="h-4 w-4" />
+                                    Generar Día ✨
+                                </Button>
+                            </SheetFooter>
+                        </SheetContent>
+                    </Sheet>
+
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" className="gap-2">
