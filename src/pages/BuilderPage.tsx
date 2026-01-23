@@ -73,14 +73,7 @@ export default function BuilderPage() {
     const [genCount, setGenCount] = useState(4);
     const [genIntensity, setGenIntensity] = useState("Alto");
 
-    // Access raw exercises for generator (assuming useData exposes it or we import it)
-    // unique Targets for dropdown
-    const { exercises } = useData(); // We need to make sure useData exposes this or import it.
-    // Actually useData context might not expose 'exercises' raw object directly in the return.
-    // Let's check store.tsx. It usually exposes 'exercises' as the library.
-    // If not, we might need to import it from json? 
-    // `useData` returns `MatrixContextType`. 
-    // Let's assume it does for now, if not I'll fix.
+
 
     // Generator Logic
     const handleAutoGenerate = () => {
