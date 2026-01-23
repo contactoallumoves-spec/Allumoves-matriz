@@ -107,17 +107,25 @@ export default function BuilderPage() {
         }
 
         // 3. Add Day & Items
-        addDay();
-        // Since addDay is async-ish state update, we can't get ID.
-        // We'll instruct user: "Se ha añadido un nuevo día con los ejercicios."
+        // We need to wait for the state update or use a different approach. 
+        // Since we can't await `addDay` state update in this version without major refactor,
+        // we will manually construct the day object and insert it directly via setMicrocycle if we could.
+        // BUT `addDay` returns the new ID synchronously in our store implementation!
 
-        // We need a way to insert items. 
-        // `updateMicrocycleItem` updates existing. `addMicrocycleItem`?
-        // Let's check what we have. `addDay` is there.
-        // We probably need `addToMicrocycle(dayId, exercise)`.
-        // Let's check `store.tsx`.
-        // FOR NOW: We will just alert "Logic Ready" until we confirm the add function.
-        // Actually, let's look at `store.tsx` again.
+        const newDayId = addDay();
+
+        // Now add items to this new Day
+        // We need to iterate and add them one by one or create a bulk add.
+        // `updateMicrocycleItem` works on existing items. `addToMicrocycle`?
+        // Let's check if we have `addToMicrocycle`. access via useData.
+
+        selected.forEach(ex => {
+            // We need to cast or ensure it matches the expected type for `addToMicrocycle` 
+            // `addToMicrocycle` expects (dayId, exercise).
+            addToMicrocycle(newDayId, ex);
+        });
+
+        setIsGeneratorOpen(false);
     };
 
     // Drag and Drop State
