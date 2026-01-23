@@ -114,9 +114,8 @@ export default function BuilderPage() {
         // Let's check if we have `addToMicrocycle`. access via useData.
 
         selected.forEach(ex => {
-            // We need to cast or ensure it matches the expected type for `addToMicrocycle` 
-            // `addToMicrocycle` expects (dayId, exercise).
-            addToMicrocycle(newDayId, ex);
+            // `addToMicrocycle` expects (exercise, dayId).
+            addToMicrocycle(ex, newDayId);
         });
 
         setIsGeneratorOpen(false);
