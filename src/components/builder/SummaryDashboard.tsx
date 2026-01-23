@@ -81,6 +81,51 @@ export function SummaryDashboard({ microcycle }: { microcycle: Microcycle }) {
                 </Card>
             </div>
 
+            {/* Weekly Load Chart */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4" /> Distribución de Carga Semanal (Sets)
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="h-[200px] w-full flex items-end justify-between gap-2 pt-4">
+                        {microcycle.dayOrder.map(dayId => {
+                            const day = microcycle.days[dayId];
+                            const daySets = day.exercises
+                                .filter(e => e.type === 'exercise')
+                                .reduce((acc, e) => acc + (e.dosage?.sets || 0), 0);
+
+                            const maxSets = Math.max(...microcycle.dayOrder.map(id =>
+                                microcycle.days[id].exercises
+                                    .filter(e => e.type === 'exercise')
+                                    .reduce((a, b) => a + (b.dosage?.sets || 0), 0)
+                            ), 15); // Min scale of 15
+
+                            const heightPercentage = (daySets / maxSets) * 100;
+
+                            return (
+                                <div key={dayId} className="flex-1 flex flex-col items-center gap-2 group">
+                                    <div className="relative w-full bg-secondary/30 rounded-t-sm h-full flex items-end overflow-hidden group-hover:bg-secondary/50 transition-colors">
+                                        <div
+                                            className="w-full bg-primary/80 group-hover:bg-primary transition-all duration-500 rounded-t-sm"
+                                            style={{ height: `${heightPercentage}%` }}
+                                        >
+                                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {daySets}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span className="text-[10px] uppercase font-bold text-muted-foreground truncate w-full text-center">
+                                        {day.label}
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="h-full">
                     <CardHeader className="pb-2">
