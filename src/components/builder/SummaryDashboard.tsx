@@ -106,12 +106,12 @@ export function SummaryDashboard({ microcycle }: { microcycle: Microcycle }) {
 
                             return (
                                 <div key={dayId} className="flex-1 flex flex-col items-center gap-2 group">
-                                    <div className="relative w-full bg-secondary/30 rounded-t-sm h-full flex items-end overflow-hidden group-hover:bg-secondary/50 transition-colors">
+                                    <div className="relative w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-full flex items-end overflow-hidden group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
                                         <div
-                                            className="w-full bg-primary/80 group-hover:bg-primary transition-all duration-500 rounded-t-sm"
-                                            style={{ height: `${heightPercentage}%` }}
+                                            className="w-full bg-indigo-600 dark:bg-indigo-500 group-hover:bg-indigo-700 transition-all duration-500 rounded-t-sm"
+                                            style={{ height: `${heightPercentage}%`, minHeight: '4px' }}
                                         >
-                                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity text-foreground">
                                                 {daySets}
                                             </span>
                                         </div>
