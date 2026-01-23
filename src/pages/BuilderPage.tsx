@@ -64,11 +64,7 @@ export default function BuilderPage() {
         exercises,
         addToMicrocycle
     } = useData();
-    addDay,
-        removeDay,
-        addSeparator,
-        moveItem,
-        viewMode,
+    viewMode,
         setViewMode
 } = useData();
 
