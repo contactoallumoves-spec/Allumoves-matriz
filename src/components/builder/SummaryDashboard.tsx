@@ -89,29 +89,35 @@ export function SummaryDashboard({ microcycle }: { microcycle: Microcycle }) {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="h-[200px] w-full flex items-end justify-between gap-2 pt-4">
+                    <div className="h-[200px] w-full flex items-end justify-between gap-2 pt-4 bg-background/50 rounded-lg border p-4">
                         {microcycle.dayOrder.map(dayId => {
                             const day = microcycle.days[dayId];
+                            // DEBUG: Ensure dosage/sets are numbers
                             const daySets = day.exercises
                                 .filter(e => e.type === 'exercise')
-                                .reduce((acc, e) => acc + (e.dosage?.sets || 0), 0);
+                                .reduce((acc, e) => {
+                                    const sets = Number(e.dosage?.sets) || 0;
+                                    return acc + sets;
+                                }, 0);
 
-                            const maxSets = Math.max(...microcycle.dayOrder.map(id =>
+                            // Calculate max for scale
+                            const allDaysSets = microcycle.dayOrder.map(id =>
                                 microcycle.days[id].exercises
                                     .filter(e => e.type === 'exercise')
-                                    .reduce((a, b) => a + (b.dosage?.sets || 0), 0)
-                            ), 15); // Min scale of 15
+                                    .reduce((a, b) => a + (Number(b.dosage?.sets) || 0), 0)
+                            );
+                            const maxSets = Math.max(...allDaysSets, 15);
 
-                            const heightPercentage = (daySets / maxSets) * 100;
+                            const heightPercentage = Math.min(100, Math.max(2, (daySets / maxSets) * 100)); // Min 2% height visibility
 
                             return (
-                                <div key={dayId} className="flex-1 flex flex-col items-center gap-2 group">
-                                    <div className="relative w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-full flex items-end overflow-hidden group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
+                                <div key={dayId} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                                    <div className="relative w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm flex items-end overflow-hidden group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors" style={{ height: '100%' }}>
                                         <div
-                                            className="w-full bg-indigo-600 dark:bg-indigo-500 group-hover:bg-indigo-700 transition-all duration-500 rounded-t-sm"
-                                            style={{ height: `${heightPercentage}%`, minHeight: '4px' }}
+                                            className="w-full bg-indigo-600 dark:bg-indigo-500 group-hover:bg-indigo-700 transition-all duration-500 rounded-t-sm absolute bottom-0"
+                                            style={{ height: `${heightPercentage}%` }}
                                         >
-                                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity text-foreground">
+                                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-100 transition-opacity text-foreground whitespace-nowrap bg-background px-1 rounded shadow-sm border">
                                                 {daySets}
                                             </span>
                                         </div>
