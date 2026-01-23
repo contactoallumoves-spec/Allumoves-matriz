@@ -136,36 +136,36 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
 
     const addToMicrocycle = (exercise: ExerciseVariantWithFlags, targetDayId?: string) => {
-        // Add to currently selected day or specified day
-        const dayId = targetDayId || currentDayId;
-        const day = microcycle.days[dayId];
-        if (!day) return;
+        setMicrocycle(prev => {
+            const dayId = targetDayId || currentDayId;
+            const day = prev.days[dayId];
+            if (!day) return prev; // Guard: Day doesn't exist in latest state
 
-        // Allow duplicates? Yes, but need unique ID.
-        const newItem: MicrocycleExercise = {
-            id: crypto.randomUUID(),
-            type: 'exercise',
-            exerciseId: exercise.id,
-            variant: exercise,
-            dosage: {
-                type: "Strength",
-                sets: 3,
-                reps: "8-12",
-                rir: "2"
-            },
-            notes: ""
-        };
+            const newItem: MicrocycleExercise = {
+                id: crypto.randomUUID(),
+                type: 'exercise',
+                exerciseId: exercise.id,
+                variant: exercise,
+                dosage: {
+                    type: "Strength",
+                    sets: 3,
+                    reps: "8-12",
+                    rir: "2"
+                },
+                notes: ""
+            };
 
-        setMicrocycle(prev => ({
-            ...prev,
-            days: {
-                ...prev.days,
-                [dayId]: {
-                    ...day,
-                    exercises: [...day.exercises, newItem] // No need to fetch prev.days[dayId] inside setter again if we just spread prev
+            return {
+                ...prev,
+                days: {
+                    ...prev.days,
+                    [dayId]: {
+                        ...day,
+                        exercises: [...day.exercises, newItem]
+                    }
                 }
-            }
-        }));
+            };
+        });
     };
 
     const addSeparator = (dayId: string, title: string = "Nuevo Bloque") => {
