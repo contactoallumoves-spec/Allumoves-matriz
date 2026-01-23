@@ -122,19 +122,18 @@ export const columns: ColumnDef<ExerciseVariantWithFlags>[] = [
             )
         }
     },
-    // Hidden Columns by default but available
     {
-        accessorKey: "limitingFactor",
-        header: "Limiting Factor",
-        cell: ({ row }) => (row.getValue("limitingFactor") as string[]).join(", ")
+        accessorKey: "loadability",
+        header: "Carga",
+        cell: ({ row }) => {
+            const val = row.original.loadability;
+            return <Badge variant={val === 'Alta' ? 'destructive' : val === 'Media' ? 'warning' : 'secondary'}>{val}</Badge>
+        }
     },
     {
-        accessorKey: "amenazaPotencial",
-        header: "Amenaza",
-        cell: ({ row }) => {
-            const val = row.getValue("amenazaPotencial") as string;
-            const variant = val === 'Alto' ? 'destructive' : val === 'Medio' ? 'warning' : 'success';
-            return <Badge variant={variant}>{val}</Badge>
-        }
-    }
+        accessorKey: "targetSecundarios",
+        header: "T. Secundarios",
+        cell: ({ row }) => (row.original.targetSecundarios || []).join(", "),
+        enableHiding: true, // Hidden by default
+    },
 ];
